@@ -27,8 +27,8 @@ let gameStarted = false;
 let openingText;
 
 function preload() {
-    this.load.image('ball', '../assets/images/ball.png');
-    this.load.image('paddle', '../assets/images/paddle-horizontal.png');
+    this.load.image('ball', 'vendor/assets/images/ball.png');
+    this.load.image('paddle', 'vendor/assets/images/paddle-horizontal.png');
 }
 
 function create() {
