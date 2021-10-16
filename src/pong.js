@@ -26,7 +26,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let player1, player2, ball, cursors;
+let player1, ball, cursors;
 let gameStarted = false;
 let openingText;
 
@@ -38,10 +38,11 @@ function preload() {
 function create() {
     ball = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
-        this.physics.world.bounds.height / 2, // y position
+        200, // y position
         'ball' // key of image for the sprite
     );
     ball.setVisible(false);
+    ball.setScale(2)
 
     player1 = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
@@ -49,22 +50,26 @@ function create() {
         'paddle', // key of image for the sprite
     );
 
-    player2 = this.physics.add.sprite(
-        this.physics.world.bounds.width / 2, // x position
-        0, // y position
-        'paddle', // key of image for the sprite
-    );
+    player1.setScale(1.7)
+
+    // player2 = this.physics.add.sprite(
+    //     this.physics.world.bounds.width / 2, // x position
+    //     0, // y position
+    //     'paddle', // key of image for the sprite
+    // );
+
+    // player2.setScale(1.7)
 
     cursors = this.input.keyboard.createCursorKeys();
 
     player1.setCollideWorldBounds(true);
-    player2.setCollideWorldBounds(true);
+    // player2.setCollideWorldBounds(true);
     ball.setCollideWorldBounds(true);
     ball.setBounce(1, 1);
     player1.setImmovable(true);
-    player2.setImmovable(true);
+    // player2.setImmovable(true);
     this.physics.add.collider(ball, player1, null, null, this);
-    this.physics.add.collider(ball, player2, null, null, this);
+    // this.physics.add.collider(ball, player2, null, null, this);
 
     openingText = this.add.text(
         this.physics.world.bounds.width / 2,
@@ -81,28 +86,28 @@ function create() {
 }
 
 const paddleSpeed = 400
+const ballSpeed = 400
 
 function update() {
     player1.body.setVelocityX(0);
-    player2.body.setVelocityX(0);
+    player1.body.setVelocityY(0);
+    // player2.body.setVelocityX(0);
 
     // manage events for neck stretches
     
     if (window.gameLeftMove()) {
         player1.body.setVelocityX(paddleSpeed*-1);
-        player2.body.setVelocityX(paddleSpeed*-1);
+        // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
         player1.body.setVelocityX(paddleSpeed);
-        player2.body.setVelocityX(paddleSpeed);
+        // player2.body.setVelocityX(paddleSpeed);
     }
     if (!gameStarted) {
         if (cursors.space.isDown) {
             ball.setVisible(true);
             gameStarted = true;
-            const initialXSpeed = 250;
-            const initialYSpeed = 200;
-            ball.setVelocityX(initialXSpeed);
-            ball.setVelocityY(initialYSpeed);
+            ball.setVelocityX(ballSpeed);
+            ball.setVelocityY(300);
             openingText.setVisible(false);
         }
     }

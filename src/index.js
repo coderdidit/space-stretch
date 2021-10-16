@@ -113,9 +113,12 @@ const renderPrediction = async () => {
             const [noseToLeftEyeAngle, noseToRightEyeAngle] =
                 getAnglesBetween(nose, leftEye, rightEye)
 
-            const activationAngle = 25
+            const activationAngle = 30
             let landmarPointSize
-            if (noseToLeftEyeAngle < activationAngle) {
+            if (noseToLeftEyeAngle < activationAngle && noseToRightEyeAngle < activationAngle) {
+                window.gameStateMoveUp()
+            }    
+            else if (noseToLeftEyeAngle < activationAngle) {
                 window.gameStateMoveLeft()
                 ctx.fillStyle = "yellow";
                 landmarPointSize = 5
