@@ -1,20 +1,24 @@
+import Phaser from "phaser";
+import ballPath from './vendor/assets/images/ball.png'
+import paddlePath from './vendor/assets/images/paddle-horizontal.png'
+
+const isMobile = window.innerWidth < 450
+const scaleDownSketch = !isMobile
+
 const config = {
     type: Phaser.AUTO,
-    parent: 'game',
-    width: 800,
-    height: 640,
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
+    parent: 'main-canvas',
+    width: scaleDownSketch ? window.innerWidth / 1.2 : window.innerWidth,
+    height: scaleDownSketch ? window.innerHeight / 1.4 : window.innerHeight / 1.3,
     scene: {
         preload,
         create,
         update,
     },
+    pixelArt: true,
     physics: {
         default: 'arcade',
-        arcade: { 
+        arcade: {
             gravity: false,
         }
     }
@@ -27,8 +31,8 @@ let gameStarted = false;
 let openingText;
 
 function preload() {
-    this.load.image('ball', 'vendor/assets/images/ball.png');
-    this.load.image('paddle', 'vendor/assets/images/paddle-horizontal.png');
+    this.load.image('ball', ballPath);
+    this.load.image('paddle', paddlePath);
 }
 
 function create() {
@@ -38,7 +42,7 @@ function create() {
         'ball' // key of image for the sprite
     );
     ball.setVisible(false);
-        
+
     player1 = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
         this.physics.world.bounds.height, // y position
@@ -72,7 +76,7 @@ function create() {
             fill: '#fff'
         }
     );
-    
+
     openingText.setOrigin(0.5);
 }
 
@@ -92,7 +96,7 @@ function update() {
         if (cursors.space.isDown) {
             ball.setVisible(true);
             gameStarted = true;
-            const initialXSpeed = Math.random() * 200 + 50;
+            const initialXSpeed = 400;
             const initialYSpeed = Math.random() * 200 + 50;
             ball.setVelocityX(initialXSpeed);
             ball.setVelocityY(initialYSpeed);
