@@ -1,5 +1,7 @@
 const play = "play"
 const move = "move"
+const left = "left"
+const right = "right"
 const stop = "stop"
 
 let prevState = stop
@@ -14,6 +16,16 @@ window.gameStateMove = () => {
     window.gameState = move
 }
 
+window.gameStateMoveLeft = () => {
+    prevState = window.gameState
+    window.gameState = left
+}
+
+window.gameStateMoveRight = () => {
+    prevState = window.gameState
+    window.gameState = right
+}
+
 window.gameStateStop = () => {
     prevState = window.gameState
     if (prevState == move) {
@@ -23,7 +35,8 @@ window.gameStateStop = () => {
 }
 
 window.gameStateIsInMove = () => {
-    if (prevState == stop && window.gameState == move) {
+    const inMove = window.gameState == left || window.gameState == right
+    if (prevState == stop && inMove) {
         const now = Date.now()
         const timeDiff = (now - lastTimeChangeToStop) / 1000
         // if first time just increment
@@ -36,7 +49,7 @@ window.gameStateIsInMove = () => {
             document.getElementById('strech-count-in-session').innerHTML = window.strechesInSession
         }
     }
-    return window.gameState == move
+    return inMove
 }
 
 window.gameStateInit()
