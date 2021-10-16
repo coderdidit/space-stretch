@@ -2,7 +2,7 @@ const play = "play"
 const move = "move"
 const left = "left"
 const right = "right"
-const up = "right"
+const up = "up"
 const stop = "stop"
 
 let prevState = stop
@@ -50,6 +50,10 @@ window.gameStateStop = () => {
         lastTimeChangeToStop = Date.now()
     }
     window.gameState = stop
+}
+
+window.gameInMove = () => {
+    return window.gameState == left || window.gameState == right
 }
 
 window.gameStateIsInMove = () => {

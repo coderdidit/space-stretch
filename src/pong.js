@@ -36,13 +36,14 @@ function preload() {
 }
 
 function create() {
+    this.physics.world.setBoundsCollision(true, true, true, true)
     ball = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
         200, // y position
         'ball' // key of image for the sprite
     );
     ball.setVisible(false);
-    ball.setScale(2)
+    // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
@@ -50,7 +51,28 @@ function create() {
         'paddle', // key of image for the sprite
     );
 
-    player1.setScale(1.7)
+    this.physics.world.on("worldbounds", function (body) {
+        alert("aaa")
+        if (body) {
+            if (body.gameObject.texture.key === 'paddle') {
+                player1.setVelocityY(-100);
+                player1.setVelocityY(0);
+            } 
+            // if (body.gameObject.texture.key === 'paddle') {
+            //     if ((config.height - body.position.y) <= body.height) {
+            //         body.gameObject.disableBody(true, true);
+            //         self.physics.pause();
+            //         console.log('Game Over');
+            //     }
+            // } 
+
+            // if (body.gameObject.texture.key === 'bullet') {
+            //     body.gameObject.disableBody(true, true);
+            //     console.log('Bullet')
+            // }
+        }
+    });
+    // player1.setScale(1.7)
 
     // player2 = this.physics.add.sprite(
     //     this.physics.world.bounds.width / 2, // x position
@@ -87,15 +109,26 @@ function create() {
 
 const paddleSpeed = 400
 const ballSpeed = 400
-
+const paddleYSpeed = 100
 function update() {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
+
+    // if (window.gameInMove()) {
+    //     if(player1.x <= 65) {
+    //         player1.body.setVelocityY(-paddleYSpeed);
+    //     }
+    //     if(player1.x >= this.physics.world.bounds.width-100) {
+    //         player1.body.setVelocityY(-paddleYSpeed);
+    //     }
+    // }
     // player2.body.setVelocityX(0);
 
     // manage events for neck stretches
-    
-    if (window.gameLeftMove()) {
+
+    if (window.gameUpMove()) {
+        player1.body.setVelocityY(paddleSpeed*-1);
+    } else if (window.gameLeftMove()) {
         player1.body.setVelocityX(paddleSpeed*-1);
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
