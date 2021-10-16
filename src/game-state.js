@@ -11,6 +11,14 @@ window.gameStateInit = () => {
     window.gameState = stop
 }
 
+window.gameLeftMove = () => {
+    return window.gameState == left
+}
+
+window.gameRightMove = () => {
+    return window.gameState == right
+}
+
 window.gameStateMove = () => {
     prevState = window.gameState
     window.gameState = move

@@ -80,23 +80,26 @@ function create() {
     openingText.setOrigin(0.5);
 }
 
+const paddleSpeed = 400
+
 function update() {
     player1.body.setVelocityX(0);
     player2.body.setVelocityX(0);
 
     // manage events for neck stretches
-    if (cursors.left.isDown) {
-        player1.body.setVelocityX(-350);
-        player2.body.setVelocityX(-350);
-    } else if (cursors.right.isDown) {
-        player1.body.setVelocityX(350);
-        player2.body.setVelocityX(350);
+    
+    if (window.gameLeftMove()) {
+        player1.body.setVelocityX(paddleSpeed*-1);
+        player2.body.setVelocityX(paddleSpeed*-1);
+    } else if (window.gameRightMove()) {
+        player1.body.setVelocityX(paddleSpeed);
+        player2.body.setVelocityX(paddleSpeed);
     }
     if (!gameStarted) {
         if (cursors.space.isDown) {
             ball.setVisible(true);
             gameStarted = true;
-            const initialXSpeed = 300;
+            const initialXSpeed = 250;
             const initialYSpeed = 200;
             ball.setVelocityX(initialXSpeed);
             ball.setVelocityY(initialYSpeed);
