@@ -9,7 +9,7 @@ const config = {
     type: Phaser.AUTO,
     parent: 'main-canvas',
     width: scaleDownSketch ? window.innerWidth / 1.2 : window.innerWidth,
-    height: scaleDownSketch ? window.innerHeight / 1.4 : window.innerHeight / 1.3,
+    height: scaleDownSketch ? window.innerHeight / 1.3 : window.innerHeight / 1.2,
     scene: {
         preload,
         create,
@@ -61,6 +61,7 @@ function create() {
     player2.setCollideWorldBounds(true);
     ball.setCollideWorldBounds(true);
     ball.setBounce(1, 1);
+    ball.body.setAllowGravity(true);
     player1.setImmovable(true);
     player2.setImmovable(true);
     this.physics.add.collider(ball, player1, null, null, this);
@@ -96,8 +97,8 @@ function update() {
         if (cursors.space.isDown) {
             ball.setVisible(true);
             gameStarted = true;
-            const initialXSpeed = 400;
-            const initialYSpeed = Math.random() * 200 + 50;
+            const initialXSpeed = 300;
+            const initialYSpeed = 200;
             ball.setVelocityX(initialXSpeed);
             ball.setVelocityY(initialYSpeed);
             openingText.setVisible(false);

@@ -5,12 +5,6 @@ import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
 import '@tensorflow/tfjs-backend-cpu';
 import getAnglesBetween from './angles';
-import * as moralis from './moralis-wrapper'
-
-// Moralis related stuff
-document.getElementById('logout').onclick = moralis.logout
-document.getElementById('connect-wallet').onclick = moralis.login
-moralis.initWeb3()
 
 // finish Moralis related stuff
 
