@@ -121,25 +121,23 @@ const renderPrediction = async () => {
 
             console.log("moveUpActivationScore", moveUpActivationScore, window.gameState)
 
-            if (moveUpActivationScore < 25) {
+            if (moveUpActivationScore < 20) {
                 window.gameStateMoveUp()
+            } else if (noseToLeftEyeAngle < activationAngle) {
+                window.gameStateMoveLeft()
+                ctx.fillStyle = "yellow";
+                landmarPointSize = 5
+            }
+            else if (noseToRightEyeAngle < activationAngle) {
+                window.gameStateMoveRight()
+                ctx.fillStyle = "yellow";
+                landmarPointSize = 5
             } else {
-                if (noseToLeftEyeAngle < activationAngle) {
-                    window.gameStateMoveLeft()
-                    ctx.fillStyle = "yellow";
-                    landmarPointSize = 5
-                }
-                else if (noseToRightEyeAngle < activationAngle) {
-                    window.gameStateMoveRight()
-                    ctx.fillStyle = "yellow";
-                    landmarPointSize = 5
-                } else {
-                    window.gameStateStop()
-                    ctx.fillStyle = "blue";
-                    landmarPointSize = 3
-                }
-            }   
-            
+                window.gameStateStop()
+                ctx.fillStyle = "blue";
+                landmarPointSize = 3
+            }
+
             // draw face landmarks
             // iterate up to 3 (right eye, left eye, nose)
             for (let j = 0; j < 3; j++) {

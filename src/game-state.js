@@ -3,6 +3,7 @@ const move = "move"
 const left = "left"
 const right = "right"
 const up = "up"
+const down = "down"
 const stop = "stop"
 
 let prevState = stop
@@ -24,6 +25,10 @@ window.gameUpMove= () => {
     return window.gameState == up
 }
 
+window.gameDownMove= () => {
+    return window.gameState == up
+}
+
 window.gameStateMove = () => {
     prevState = window.gameState
     window.gameState = move
@@ -39,9 +44,14 @@ window.gameStateMoveRight = () => {
     window.gameState = right
 }
 
-window.gameStateMoveUp= () => {
+window.gameStateMoveUp = () => {
     prevState = window.gameState
     window.gameState = up
+}
+
+window.gameStateMoveDown = () => {
+    prevState = window.gameState
+    window.gameState = down
 }
 
 window.gameStateStop = () => {

@@ -128,6 +128,8 @@ function update() {
 
     if (window.gameUpMove()) {
         player1.body.setVelocityY(paddleSpeed*-1);
+    } else if (window.gameDownMove()) {
+        player1.body.setVelocityY(paddleSpeed);
     } else if (window.gameLeftMove()) {
         player1.body.setVelocityX(paddleSpeed*-1);
         // player2.body.setVelocityX(paddleSpeed*-1);
