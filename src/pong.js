@@ -61,7 +61,6 @@ function create() {
     player2.setCollideWorldBounds(true);
     ball.setCollideWorldBounds(true);
     ball.setBounce(1, 1);
-    ball.body.setAllowGravity(true);
     player1.setImmovable(true);
     player2.setImmovable(true);
     this.physics.add.collider(ball, player1, null, null, this);
