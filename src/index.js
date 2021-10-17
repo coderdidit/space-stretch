@@ -1,23 +1,24 @@
 import 'regenerator-runtime/runtime'
 import * as blazeface from '@tensorflow-models/blazeface';
+import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
-import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
+// import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
 import '@tensorflow/tfjs-backend-cpu';
-import getAnglesBetween from './angles';
+import { getAnglesBetween, getAngleBetween } from './angles';
 
 // finish Moralis related stuff
 
 // TODO wasm is much faster investigate why
 // + vendor the dist
-const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-console.log('registering wasm', wasmPath)
-tfjsWasm.setWasmPaths(wasmPath);
+// const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
+// console.log('registering wasm', wasmPath)
+// tfjsWasm.setWasmPaths(wasmPath);
 
 const video = document.getElementById('video')
 const canvas = document.getElementById('video-output')
 
-let model, ctx
+let bfModel, ctx, poseDetector;
 
 const setupCamera = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -37,7 +38,19 @@ const renderPrediction = async () => {
     const returnTensors = false;
     const flipHorizontal = false;
     const annotateBoxes = true;
-    const predictions = await model.estimateFaces(
+    // pose detection
+    const poses = await poseDetector.estimatePoses(video);
+
+    const poseKeypoints = poses[0].keypoints
+    const left_shoulder = poseKeypoints[5]
+    const right_shoulder = poseKeypoints[6]
+    const left_elbow = poseKeypoints[7]
+    const right_elbow = poseKeypoints[8]
+
+    const leftElbowToSholder = getAngleBetween(left_shoulder, left_elbow)
+
+    // face predictions
+    const predictions = await bfModel.estimateFaces(
         video, returnTensors, flipHorizontal, annotateBoxes)
 
     const videoWidth = video.videoWidth
@@ -126,13 +139,13 @@ const renderPrediction = async () => {
             let landmarPointSize
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
-            
-            // if (moveDown) {
+
+            // if (leftElbowToSholder > 60) {
             //     window.gameStateMoveDown()
             //     ctx.fillStyle = "orange";
             //     landmarPointSize = 5
             // } else 
-            if (moveUpActivationScore < 20) {
+            if (moveUpActivationScore < 20 || leftElbowToSholder > 60) {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
                 landmarPointSize = 5
@@ -167,8 +180,8 @@ const renderPrediction = async () => {
 }
 
 const setupGame = async () => {
-    await tf.setBackend('wasm')
-    console.log('tfjs backend loaded')
+    await tf.setBackend('webgl')
+    console.log('tfjs backend loaded webgl')
     await setupCamera()
     console.log('setupCamera finished')
     video.play()
@@ -192,7 +205,10 @@ const setupGame = async () => {
     ctx = canvas.getContext('2d')
     ctx.fillStyle = "rgba(255, 0, 0, 0.5)"
 
-    model = await blazeface.load()
+    bfModel = await blazeface.load()
+    poseDetector = await poseDetection.createDetector(
+        poseDetection.SupportedModels.MoveNet,
+        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER });
 
     renderPrediction()
 }

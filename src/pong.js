@@ -135,6 +135,7 @@ function update() {
     }
     if (!gameStarted) {
         if (cursors.space.isDown) {
+            console.log('space hit!')
             ball.setVisible(true);
             gameStarted = true;
             ball.setVelocityX(ballSpeed);
