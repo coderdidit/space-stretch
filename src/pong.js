@@ -46,7 +46,7 @@ function create() {
     // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
-        this.physics.world.bounds.width / 2, // x position
+        0, // x position
         this.physics.world.bounds.height, // y position
         'paddle', // key of image for the sprite
     );
@@ -108,13 +108,19 @@ function create() {
 }
 
 const paddleSpeed = 300
-const ballSpeed = 400
-function update() {
+// const ballSpeed = 400
+let lastMovetime = Date.now()
+function update(time, delta) {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
-    player1.body.setAllowGravity(true)
+    
     ball.body.setAllowGravity(false)
-
+    const now = Date.now()
+    const timeDiff = (now - lastMovetime) / 1000
+    // deffer gravity from in move state
+    if (timeDiff > 0.2) {
+        player1.body.setAllowGravity(true)
+    }
     // if (window.gameLeftMove() || window.gameRightMove()) {
     //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
     //         player1.body.setVelocityY(paddleSpeed);
@@ -124,15 +130,19 @@ function update() {
     // manage events for neck stretches
     if (window.gameUpMove()) {
         player1.body.setVelocityY(paddleSpeed*-1);
+        player1.body.setAllowGravity(false)
+        lastMovetime = now
     } else if (window.gameDownMove()) {
         player1.body.setVelocityY(paddleSpeed);
     } else if (window.gameLeftMove()) {
         player1.body.setVelocityX(paddleSpeed*-1);
         player1.body.setAllowGravity(false)
+        lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
         player1.body.setVelocityX(paddleSpeed);
         player1.body.setAllowGravity(false)
+        lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed);
     }
     if (!gameStarted) {
@@ -140,8 +150,8 @@ function update() {
             console.log('space hit!')
             ball.setVisible(true);
             gameStarted = true;
-            ball.setVelocityX(ballSpeed);
-            ball.setVelocityY(300);
+            // ball.setVelocityX(ballSpeed);
+            // ball.setVelocityY(300);
             openingText.setVisible(false);
         }
     }
