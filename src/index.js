@@ -93,6 +93,11 @@ const renderPrediction = async () => {
             const rightEar = landmarks[4]
             const leftEar = landmarks[5]
 
+            const noseObj = {x: nose[0], y: nose[1]}
+            const noseToLeftShoulder = Math.abs(getAngleBetween(noseObj, left_shoulder))
+            const noseToRightShoulder = getAngleBetween(right_shoulder, noseObj)
+            console.log('nose to shoulder', noseToLeftShoulder, noseToRightShoulder)
+
             const drawCircleAroundHead = () => {
                 ctx.beginPath();
                 ctx.arc(nose[0], nose[1], size[0] / 2, 0,
@@ -148,11 +153,12 @@ const renderPrediction = async () => {
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
             const mouhtToNose = Math.abs(nose[1] - mouth[1])
-            // if (mouhtToNose <= 20) {
-            //     window.gameStateMoveDown()
-            //     ctx.fillStyle = "orange";
-            //     landmarPointSize = 5
-            // } else 
+            // down
+            if (noseToLeftShoulder + noseToRightShoulder < 50) {
+                window.gameStateMoveDown()
+                ctx.fillStyle = "orange";
+                landmarPointSize = 5
+            } else 
             // up
             if (moveUpActivationScore < 20 || (leftElbowToSholder > 60 && rightElbowToSholder > 60)) {
                 window.gameStateMoveUp()

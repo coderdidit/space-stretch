@@ -107,7 +107,7 @@ function create() {
     openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 300
+const paddleSpeed = 200
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
@@ -119,7 +119,7 @@ function update(time, delta) {
     const timeDiff = (now - lastMovetime) / 1000
     // deffer gravity from in move state
     if (timeDiff > 0.2) {
-        player1.body.setAllowGravity(true)
+        // player1.body.setAllowGravity(true)
     }
     // if (window.gameLeftMove() || window.gameRightMove()) {
     //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
