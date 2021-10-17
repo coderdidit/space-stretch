@@ -2,18 +2,16 @@ import 'regenerator-runtime/runtime'
 import * as blazeface from '@tensorflow-models/blazeface';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
-// import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-import '@tensorflow/tfjs-backend-webgl';
-import '@tensorflow/tfjs-backend-cpu';
+import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
+// import '@tensorflow/tfjs-backend-webgl';
+// import '@tensorflow/tfjs-backend-cpu';
 import { getAnglesBetween, getAngleBetween, getDistance } from './angles';
-
-// finish Moralis related stuff
 
 // TODO wasm is much faster investigate why
 // + vendor the dist
-// const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-// console.log('registering wasm', wasmPath)
-// tfjsWasm.setWasmPaths(wasmPath);
+const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
+console.log('registering wasm', wasmPath)
+tfjsWasm.setWasmPaths(wasmPath);
 
 const video = document.getElementById('video')
 const canvas = document.getElementById('video-output')
@@ -191,8 +189,8 @@ const renderPrediction = async () => {
 }
 
 const setupGame = async () => {
-    await tf.setBackend('webgl')
-    console.log('tfjs backend loaded webgl')
+    await tf.setBackend('wasm')
+    console.log('tfjs backend loaded wasm')
     await setupCamera()
     console.log('setupCamera finished')
     video.play()
