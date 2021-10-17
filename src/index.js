@@ -5,7 +5,7 @@ import * as tf from '@tensorflow/tfjs-core';
 // import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
 import '@tensorflow/tfjs-backend-cpu';
-import { getAnglesBetween, getAngleBetween } from './angles';
+import { getAnglesBetween, getAngleBetween, getDistance } from './angles';
 
 // finish Moralis related stuff
 
@@ -48,6 +48,7 @@ const renderPrediction = async () => {
     const right_elbow = poseKeypoints[8]
 
     const leftElbowToSholder = getAngleBetween(left_shoulder, left_elbow)
+    const rightElbowToSholder = getAngleBetween(right_shoulder, right_elbow)
 
     // face predictions
     const predictions = await bfModel.estimateFaces(
@@ -87,12 +88,12 @@ const renderPrediction = async () => {
         if (annotateBoxes) {
             const landmarks = prediction.landmarks;
 
-            const nose = landmarks[2]
-            const leftEye = landmarks[1]
             const rightEye = landmarks[0]
+            const leftEye = landmarks[1]
+            const nose = landmarks[2]
             const mouth = landmarks[3]
-            const leftEar = landmarks[4]
-            const rightEar = landmarks[5]
+            const rightEar = landmarks[4]
+            const leftEar = landmarks[5]
 
             const drawCircleAroundHead = () => {
                 ctx.beginPath();
@@ -118,15 +119,20 @@ const renderPrediction = async () => {
 
             drawLine(nose, mouth)
 
-            drawLine(nose, rightEar)
+            drawLine(mouth, rightEye)
 
-            drawLine(nose, leftEar)
+            drawLine(mouth, leftEye)
+
+            drawLine(mouth, leftEar)
+
+            drawLine(mouth, rightEar)
+
 
             // path from nose to right end
-            drawLine(nose, [0, nose[1]])
+            drawLine(mouth, [0, nose[1]])
 
             // path from nose to left end
-            drawLine(nose, [videoWidth, nose[1]])
+            drawLine(mouth, [videoWidth, nose[1]])
 
             // calculate angles between 
             // - line from nose to eye 
@@ -135,26 +141,31 @@ const renderPrediction = async () => {
             const [mouthToLeftEyeAngle, mouthToRightEyeAngle] =
                 getAnglesBetween(mouth, leftEye, rightEye)
 
+
+            const [mouthToLeftEarAngle, mouthToRightEarAngle] =
+                getAnglesBetween(mouth, leftEar, rightEar)
+
             const activationAngle = 30
             let landmarPointSize
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
-
-            // if (leftElbowToSholder > 60) {
+            const mouhtToNose = Math.abs(nose[1] - mouth[1])
+            // if (mouhtToNose <= 20) {
             //     window.gameStateMoveDown()
             //     ctx.fillStyle = "orange";
             //     landmarPointSize = 5
             // } else 
-            if (moveUpActivationScore < 20 || leftElbowToSholder > 60) {
+            // up
+            if (moveUpActivationScore < 20 || (leftElbowToSholder > 60 && rightElbowToSholder > 60)) {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
                 landmarPointSize = 5
-            } else if (mouthToLeftEyeAngle < activationAngle) {
+            } else if (mouthToLeftEyeAngle < activationAngle) { // left
                 window.gameStateMoveLeft()
                 ctx.fillStyle = "yellow";
                 landmarPointSize = 5
             }
-            else if (mouthToRightEyeAngle < activationAngle) {
+            else if (mouthToRightEyeAngle < activationAngle) { // right
                 window.gameStateMoveRight()
                 ctx.fillStyle = "red";
                 landmarPointSize = 5

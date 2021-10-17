@@ -19,7 +19,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: false,
+            gravity: {y: window.innerHeight*4},
         }
     }
 };
@@ -112,25 +112,27 @@ const ballSpeed = 400
 function update() {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
+    player1.body.setAllowGravity(true)
+    ball.body.setAllowGravity(false)
 
-    if (window.gameLeftMove() || window.gameRightMove()) {
-        if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
-            player1.body.setVelocityY(paddleSpeed);
-        }
-    }
-    // player2.body.setVelocityX(0);
+    // if (window.gameLeftMove() || window.gameRightMove()) {
+    //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
+    //         player1.body.setVelocityY(paddleSpeed);
+    //     }
+    // }
 
     // manage events for neck stretches
-
     if (window.gameUpMove()) {
         player1.body.setVelocityY(paddleSpeed*-1);
     } else if (window.gameDownMove()) {
         player1.body.setVelocityY(paddleSpeed);
     } else if (window.gameLeftMove()) {
         player1.body.setVelocityX(paddleSpeed*-1);
+        player1.body.setAllowGravity(false)
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
         player1.body.setVelocityX(paddleSpeed);
+        player1.body.setAllowGravity(false)
         // player2.body.setVelocityX(paddleSpeed);
     }
     if (!gameStarted) {
