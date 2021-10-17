@@ -119,27 +119,14 @@ const renderPrediction = async () => {
             // - line from nose to eye 
             // - and straigh line from end to end crossing nose
             // for left and right
-            const [noseToLeftEyeAngle, noseToRightEyeAngle] =
+            const [mouthToLeftEyeAngle, mouthToRightEyeAngle] =
                 getAnglesBetween(mouth, leftEye, rightEye)
-
-            const [leftEarToLeftEyeAngle, noseToRightEyeAnglesdf] =
-                getAnglesBetween(leftEar, leftEye, rightEye)
-
-            const [rightEarToLeftEyeAngle, noseToRightEyeAnglesdfd] =
-                getAnglesBetween(rightEar, rightEye, rightEye)
 
             const activationAngle = 30
             let landmarPointSize
-
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
-
-            let moveDown = rightEarToLeftEyeAngle < activationAngle
-
-            const rEarEyeDiff = Math.pow(Math.abs(rightEar[1] - rightEye[1]), 2)
             
-            console.log('noseToLeftEyeAngle', noseToLeftEyeAngle)
-
             // if (moveDown) {
             //     window.gameStateMoveDown()
             //     ctx.fillStyle = "orange";
@@ -149,12 +136,12 @@ const renderPrediction = async () => {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
                 landmarPointSize = 5
-            } else if (noseToLeftEyeAngle < activationAngle) {
+            } else if (mouthToLeftEyeAngle < activationAngle) {
                 window.gameStateMoveLeft()
                 ctx.fillStyle = "yellow";
                 landmarPointSize = 5
             }
-            else if (noseToRightEyeAngle < activationAngle) {
+            else if (mouthToRightEyeAngle < activationAngle) {
                 window.gameStateMoveRight()
                 ctx.fillStyle = "red";
                 landmarPointSize = 5
