@@ -107,21 +107,17 @@ function create() {
     openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 400
+const paddleSpeed = 300
 const ballSpeed = 400
-const paddleYSpeed = 100
 function update() {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
 
-    // if (window.gameInMove()) {
-    //     if(player1.x <= 65) {
-    //         player1.body.setVelocityY(-paddleYSpeed);
-    //     }
-    //     if(player1.x >= this.physics.world.bounds.width-100) {
-    //         player1.body.setVelocityY(-paddleYSpeed);
-    //     }
-    // }
+    if (window.gameLeftMove() || window.gameRightMove()) {
+        if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
+            player1.body.setVelocityY(paddleSpeed);
+        }
+    }
     // player2.body.setVelocityX(0);
 
     // manage events for neck stretches

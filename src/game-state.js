@@ -26,7 +26,7 @@ window.gameUpMove= () => {
 }
 
 window.gameDownMove= () => {
-    return window.gameState == up
+    return window.gameState == down
 }
 
 window.gameStateMove = () => {

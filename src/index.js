@@ -77,6 +77,9 @@ const renderPrediction = async () => {
             const nose = landmarks[2]
             const leftEye = landmarks[1]
             const rightEye = landmarks[0]
+            const mouth = landmarks[3]
+            const leftEar = landmarks[4]
+            const rightEar = landmarks[5]
 
             const drawCircleAroundHead = () => {
                 ctx.beginPath();
@@ -100,6 +103,12 @@ const renderPrediction = async () => {
             // path from nose to left eye
             drawLine(nose, leftEye)
 
+            drawLine(nose, mouth)
+
+            drawLine(nose, rightEar)
+
+            drawLine(nose, leftEar)
+
             // path from nose to right end
             drawLine(nose, [0, nose[1]])
 
@@ -111,7 +120,13 @@ const renderPrediction = async () => {
             // - and straigh line from end to end crossing nose
             // for left and right
             const [noseToLeftEyeAngle, noseToRightEyeAngle] =
-                getAnglesBetween(nose, leftEye, rightEye)
+                getAnglesBetween(mouth, leftEye, rightEye)
+
+            const [leftEarToLeftEyeAngle, noseToRightEyeAnglesdf] =
+                getAnglesBetween(leftEar, leftEye, rightEye)
+
+            const [rightEarToLeftEyeAngle, noseToRightEyeAnglesdfd] =
+                getAnglesBetween(rightEar, rightEye, rightEye)
 
             const activationAngle = 30
             let landmarPointSize
@@ -119,10 +134,21 @@ const renderPrediction = async () => {
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
 
-            console.log("moveUpActivationScore", moveUpActivationScore, window.gameState)
+            let moveDown = rightEarToLeftEyeAngle < activationAngle
 
+            const rEarEyeDiff = Math.pow(Math.abs(rightEar[1] - rightEye[1]), 2)
+            
+            console.log('noseToLeftEyeAngle', noseToLeftEyeAngle)
+
+            // if (moveDown) {
+            //     window.gameStateMoveDown()
+            //     ctx.fillStyle = "orange";
+            //     landmarPointSize = 5
+            // } else 
             if (moveUpActivationScore < 20) {
                 window.gameStateMoveUp()
+                ctx.fillStyle = "green";
+                landmarPointSize = 5
             } else if (noseToLeftEyeAngle < activationAngle) {
                 window.gameStateMoveLeft()
                 ctx.fillStyle = "yellow";
@@ -130,7 +156,7 @@ const renderPrediction = async () => {
             }
             else if (noseToRightEyeAngle < activationAngle) {
                 window.gameStateMoveRight()
-                ctx.fillStyle = "yellow";
+                ctx.fillStyle = "red";
                 landmarPointSize = 5
             } else {
                 window.gameStateStop()
@@ -139,8 +165,8 @@ const renderPrediction = async () => {
             }
 
             // draw face landmarks
-            // iterate up to 3 (right eye, left eye, nose)
-            for (let j = 0; j < 3; j++) {
+            // iterate up to 4 (right eye, left eye, nose, mouth)
+            for (let j = 0; j < 6; j++) {
                 const x = landmarks[j][0];
                 const y = landmarks[j][1];
                 ctx.beginPath();
