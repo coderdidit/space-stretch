@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import ballPath from './vendor/assets/images/ball.png'
 import paddlePath from './vendor/assets/images/paddle-horizontal.png'
+import party from "party-js"
+
+const canvasParent = document.getElementById('main-canvas')
 
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
@@ -64,7 +67,7 @@ function create() {
         tile.setImmovable(true);
 
         ballGroups.set(tile, 0);
-        
+
     }
 
     // right
@@ -147,6 +150,8 @@ function create() {
                 ballGroups.set(ballgr, 1)
                 ballgr.setTint("0x33dd33")
                 ballgr.setImmovable(false)
+
+                party.confetti(canvasParent)
             }
         }
     }
