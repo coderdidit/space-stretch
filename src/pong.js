@@ -19,7 +19,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y: window.innerHeight*3},
+            gravity: {y: 500},
         }
     }
 };
@@ -43,27 +43,53 @@ function create() {
     // this.platforms.enableBody = true
     // this.platforms.createMultiple(20, "ball")
 
-    const offsett = 30
-
+    // left
     for (let i = 0; i < 15; i++) {
-        // const curball = this.physics.add.sprite(
-        //     i * 32, // x position
-        //     300, // y position
-        //     'ball' // key of image for the sprite
-        // );
-        const tile = ballsGroup.create((i * 32)+offsett, 800, 'ball')
+        const tile = ballsGroup.create((i * 32)+150, 800, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
-        // this.physics.add.existing(tile);
-        // tile.enableBody = true
-        
+    }
+
+    // right
+    for (let i = 0; i < 15; i++) {
+        const tile = ballsGroup.create((i * 32)+700, 650, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+    }
+
+    // left
+    for (let i = 0; i < 15; i++) {
+        const tile = ballsGroup.create((i * 32)+50, 400, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+    }
+
+    // left
+    for (let i = 0; i < 15; i++) {
+        const tile = ballsGroup.create((i * 32)+100, 150, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+    }
+
+    // right
+    for (let i = 0; i < 15; i++) {
+        const tile = ballsGroup.create((i * 32)+900, 400, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+    }
+
+    // left
+    for (let i = 0; i < 15; i++) {
+        const tile = ballsGroup.create((i * 32)+800, 100, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
     }
     
     // ball.setVisible(false);
     // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
-        0, // x position
+        Phaser.Math.Between(0, this.physics.world.bounds.width-80), // x position
         this.physics.world.bounds.height, // y position
         'paddle', // key of image for the sprite
     );
@@ -104,7 +130,7 @@ function create() {
     // openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 270
+const paddleSpeed = 100
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
@@ -130,7 +156,7 @@ function update(time, delta) {
         player1.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameJumpMove()) {
-        player1.body.setVelocityY((paddleSpeed+100)*-1);
+        player1.body.setVelocityY((paddleSpeed)*-1);
         player1.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameDownMove()) {
