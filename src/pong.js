@@ -19,7 +19,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y: window.innerHeight*4},
+            gravity: {y: window.innerHeight*3},
         }
     }
 };
@@ -37,12 +37,29 @@ function preload() {
 
 function create() {
     this.physics.world.setBoundsCollision(true, true, true, true)
-    ball = this.physics.add.sprite(
-        this.physics.world.bounds.width / 2, // x position
-        200, // y position
-        'ball' // key of image for the sprite
-    );
-    ball.setVisible(false);
+
+    const ballsGroup = this.physics.add.group()
+    ballsGroup.enableBody = true;
+    // this.platforms.enableBody = true
+    // this.platforms.createMultiple(20, "ball")
+
+    const offsett = 30
+
+    for (let i = 0; i < 15; i++) {
+        // const curball = this.physics.add.sprite(
+        //     i * 32, // x position
+        //     300, // y position
+        //     'ball' // key of image for the sprite
+        // );
+        const tile = ballsGroup.create((i * 32)+offsett, 800, 'ball')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        // this.physics.add.existing(tile);
+        // tile.enableBody = true
+        
+    }
+    
+    // ball.setVisible(false);
     // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
@@ -51,27 +68,6 @@ function create() {
         'paddle', // key of image for the sprite
     );
 
-    this.physics.world.on("worldbounds", function (body) {
-        alert("aaa")
-        if (body) {
-            if (body.gameObject.texture.key === 'paddle') {
-                player1.setVelocityY(-100);
-                player1.setVelocityY(0);
-            } 
-            // if (body.gameObject.texture.key === 'paddle') {
-            //     if ((config.height - body.position.y) <= body.height) {
-            //         body.gameObject.disableBody(true, true);
-            //         self.physics.pause();
-            //         console.log('Game Over');
-            //     }
-            // } 
-
-            // if (body.gameObject.texture.key === 'bullet') {
-            //     body.gameObject.disableBody(true, true);
-            //     console.log('Bullet')
-            // }
-        }
-    });
     // player1.setScale(1.7)
 
     // player2 = this.physics.add.sprite(
@@ -86,40 +82,41 @@ function create() {
 
     player1.setCollideWorldBounds(true);
     // player2.setCollideWorldBounds(true);
-    ball.setCollideWorldBounds(true);
-    ball.setBounce(1, 1);
-    player1.setImmovable(true);
+    // ball.setCollideWorldBounds(true);
+    // ball.setBounce(1, 1);
+    // player1.setImmovable(true);
     // player2.setImmovable(true);
-    this.physics.add.collider(ball, player1, null, null, this);
+
+    this.physics.add.collider(player1, ballsGroup, null, null, this);
     // this.physics.add.collider(ball, player2, null, null, this);
 
-    openingText = this.add.text(
-        this.physics.world.bounds.width / 2,
-        this.physics.world.bounds.height / 2,
-        'Press SPACE to Start',
-        {
-            fontFamily: 'Monaco, Courier, monospace',
-            fontSize: '50px',
-            fill: '#fff'
-        }
-    );
+    // openingText = this.add.text(
+    //     this.physics.world.bounds.width / 2,
+    //     this.physics.world.bounds.height / 2,
+    //     'Press SPACE to Start',
+    //     {
+    //         fontFamily: 'Monaco, Courier, monospace',
+    //         fontSize: '50px',
+    //         fill: '#fff'
+    //     }
+    // );
 
-    openingText.setOrigin(0.5);
+    // openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 200
+const paddleSpeed = 270
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
     
-    ball.body.setAllowGravity(false)
+    // ball.body.setAllowGravity(false)
     const now = Date.now()
     const timeDiff = (now - lastMovetime) / 1000
     // deffer gravity from in move state
-    if (timeDiff > 0.2) {
-        // player1.body.setAllowGravity(true)
+    if (timeDiff > 0.8) {
+        player1.body.setAllowGravity(true)
     }
     // if (window.gameLeftMove() || window.gameRightMove()) {
     //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
@@ -130,6 +127,10 @@ function update(time, delta) {
     // manage events for neck stretches
     if (window.gameUpMove()) {
         player1.body.setVelocityY(paddleSpeed*-1);
+        player1.body.setAllowGravity(false)
+        lastMovetime = now
+    } else if (window.gameJumpMove()) {
+        player1.body.setVelocityY((paddleSpeed+100)*-1);
         player1.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameDownMove()) {
@@ -145,14 +146,14 @@ function update(time, delta) {
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed);
     }
-    if (!gameStarted) {
-        if (cursors.space.isDown) {
-            console.log('space hit!')
-            ball.setVisible(true);
-            gameStarted = true;
-            // ball.setVelocityX(ballSpeed);
-            // ball.setVelocityY(300);
-            openingText.setVisible(false);
-        }
-    }
+    // if (!gameStarted) {
+    //     if (cursors.space.isDown) {
+    //         console.log('space hit!')
+    //         ball.setVisible(true);
+    //         gameStarted = true;
+    //         // ball.setVelocityX(ballSpeed);
+    //         // ball.setVelocityY(300);
+    //         openingText.setVisible(false);
+    //     }
+    // }
 }

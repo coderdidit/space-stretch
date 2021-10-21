@@ -3,6 +3,7 @@ const move = "move"
 const left = "left"
 const right = "right"
 const up = "up"
+const jump = "jump"
 const down = "down"
 const stop = "stop"
 
@@ -23,6 +24,10 @@ window.gameRightMove = () => {
 
 window.gameUpMove= () => {
     return window.gameState == up
+}
+
+window.gameJumpMove= () => {
+    return window.gameState == jump
 }
 
 window.gameDownMove= () => {
@@ -52,6 +57,11 @@ window.gameStateMoveUp = () => {
 window.gameStateMoveDown = () => {
     prevState = window.gameState
     window.gameState = down
+}
+
+window.gameStateMoveJump = () => {
+    prevState = window.gameState
+    window.gameState = jump
 }
 
 window.gameStateStop = () => {

@@ -96,7 +96,6 @@ const renderPrediction = async () => {
             const noseObj = {x: nose[0], y: nose[1]}
             const noseToLeftShoulder = Math.abs(getAngleBetween(noseObj, left_shoulder))
             const noseToRightShoulder = getAngleBetween(right_shoulder, noseObj)
-            console.log('nose to shoulder', noseToLeftShoulder, noseToRightShoulder)
 
             const drawCircleAroundHead = () => {
                 ctx.beginPath();
@@ -153,16 +152,14 @@ const renderPrediction = async () => {
             // max Diff Between Nose And Eyes y positions distance to origin
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
             const mouhtToNose = Math.abs(nose[1] - mouth[1])
-            // down
-            if (noseToLeftShoulder + noseToRightShoulder < 50) {
-                window.gameStateMoveDown()
-                ctx.fillStyle = "orange";
-                landmarPointSize = 5
-            } else 
             // up
-            if (moveUpActivationScore < 20 || (leftElbowToSholder > 60 && rightElbowToSholder > 60)) {
+            if (moveUpActivationScore < 20) {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
+                landmarPointSize = 5
+            } else if (leftElbowToSholder > 60 && rightElbowToSholder > 60) {
+                window.gameStateMoveJump()
+                ctx.fillStyle = "blue";
                 landmarPointSize = 5
             } else if (mouthToLeftEyeAngle < activationAngle) { // left
                 window.gameStateMoveLeft()
@@ -173,7 +170,14 @@ const renderPrediction = async () => {
                 window.gameStateMoveRight()
                 ctx.fillStyle = "red";
                 landmarPointSize = 5
-            } else {
+            } 
+            // down
+            // else if (noseToLeftShoulder + noseToRightShoulder < 50) {
+            //     window.gameStateMoveDown()
+            //     ctx.fillStyle = "orange";
+            //     landmarPointSize = 5
+            // } 
+            else {
                 window.gameStateStop()
                 ctx.fillStyle = "blue";
                 landmarPointSize = 3
