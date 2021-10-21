@@ -26,9 +26,9 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let player1, ball, cursors;
-let gameStarted = false;
-let openingText;
+let player1, ballsGroup, cursors;
+
+let ballGroups = new Map()
 
 function preload() {
     this.load.image('ball', ballPath);
@@ -36,18 +36,35 @@ function preload() {
 }
 
 function create() {
+
+    // openingText
+    this.add.text(
+        5,
+        5,
+        'Land on asteroids 🌝',
+        {
+            fontFamily: 'Monaco, Courier, monospace',
+            fontSize: '25px',
+            fill: '#fff'
+        }
+    );
+
     this.physics.world.setBoundsCollision(true, true, true, true)
 
-    const ballsGroup = this.physics.add.group()
+    ballsGroup = this.physics.add.group()
     ballsGroup.enableBody = true;
     // this.platforms.enableBody = true
     // this.platforms.createMultiple(20, "ball")
 
     // left
+    let tileSet = []
     for (let i = 0; i < 15; i++) {
         const tile = ballsGroup.create((i * 32)+150, 800, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
+        
     }
 
     // right
@@ -55,6 +72,8 @@ function create() {
         const tile = ballsGroup.create((i * 32)+700, 650, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
     }
 
     // left
@@ -62,6 +81,8 @@ function create() {
         const tile = ballsGroup.create((i * 32)+50, 400, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
     }
 
     // left
@@ -69,6 +90,8 @@ function create() {
         const tile = ballsGroup.create((i * 32)+100, 150, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
     }
 
     // right
@@ -76,6 +99,8 @@ function create() {
         const tile = ballsGroup.create((i * 32)+900, 400, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
     }
 
     // left
@@ -83,6 +108,8 @@ function create() {
         const tile = ballsGroup.create((i * 32)+800, 100, 'ball')
         tile.body.allowGravity = false
         tile.setImmovable(true);
+
+        ballGroups.set(tile, 0);
     }
     
     // ball.setVisible(false);
@@ -113,7 +140,18 @@ function create() {
     // player1.setImmovable(true);
     // player2.setImmovable(true);
 
-    this.physics.add.collider(player1, ballsGroup, null, null, this);
+    const onCollide = (avatar, ballgr) => {
+        if (player1.body.onFloor()) {
+            const thisBgLanded = ballGroups.get(ballgr);
+            if (thisBgLanded == 0) {
+                ballGroups.set(ballgr, 1)
+                ballgr.setTint("0x33dd33")
+                ballgr.setImmovable(false)
+            }
+        }
+    }
+
+    this.physics.add.collider(player1, ballsGroup, onCollide, null, this);
     // this.physics.add.collider(ball, player2, null, null, this);
 
     // openingText = this.add.text(
@@ -134,6 +172,7 @@ const paddleSpeed = 100
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
+
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
     
