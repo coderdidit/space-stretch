@@ -40,6 +40,7 @@ const renderPrediction = async () => {
 
     if (poses.length > 0) {
         const poseKeypoints = poses[0].keypoints
+        const nose  = poseKeypoints[0]
         const left_shoulder = poseKeypoints[5]
         const right_shoulder = poseKeypoints[6]
         const left_elbow = poseKeypoints[7]
@@ -50,28 +51,41 @@ const renderPrediction = async () => {
         const leftElbowToSholder = getAngleBetween(left_shoulder, left_elbow)
         const rightElbowToSholder = getAngleBetween(right_shoulder, right_elbow)
 
+        const elbowsAboveNose = left_elbow["y"] > nose["y"] || right_elbow["y"] > nose["y"]
+
         // draw video to canvas 
         ctx.drawImage(video, 0, 0, videoWidth, videoHeight)
 
         const angle = 40
-        const oneOfArmsOrBothUp = leftElbowToSholder > angle || rightElbowToSholder > angle
+        const oneOfArmsOrBothUp = (leftElbowToSholder > angle) || (rightElbowToSholder > angle)
 
-        if (moved) {
-            if (!oneOfArmsOrBothUp) {
-                moved = false
-            }
-            window.gameStateStop()
+        const bothArmsUp = (leftElbowToSholder > angle) && (rightElbowToSholder > angle)
+
+        if (bothArmsUp) {
+            moved = true
+            window.gameStateMoveJump()
+            ctx.fillStyle = "blue";
         } else {
-            if (oneOfArmsOrBothUp) {
-                moved = true
-                window.gameStateMoveJump()
-                ctx.fillStyle = "blue";
-            } else {
-                moved = false
+            if (moved) {
+                if (!oneOfArmsOrBothUp) {
+                    moved = false
+                }
                 window.gameStateStop()
-                ctx.fillStyle = "blue";
+            } else {
+                if (oneOfArmsOrBothUp) {
+                    moved = true
+                    window.gameStateMoveJump()
+                    ctx.fillStyle = "blue";
+                } else {
+                    moved = false
+                    window.gameStateStop()
+                    ctx.fillStyle = "blue";
+                }
             }
+
         }
+
+        
     }
     requestAnimationFrame(renderPrediction)
 }
