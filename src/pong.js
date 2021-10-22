@@ -22,7 +22,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 500 },
+            gravity: { y: 0 },
         }
     }
 };
@@ -33,23 +33,6 @@ let player1, ballsGroup, cursors;
 let ballGroups = new Map()
 let score = 0
 let scoreBoard
-
-function updateScore(_, gap) {
-    score++
-    gap.destroy()
-
-    if (score % 10 == 0) {
-        backgroundDay.visible = !backgroundDay.visible
-        backgroundNight.visible = !backgroundNight.visible
-
-        if (currentPipe === assets.obstacle.pipe.green)
-            currentPipe = assets.obstacle.pipe.red
-        else
-            currentPipe = assets.obstacle.pipe.green
-    }
-
-    updateScoreboard()
-}
 
 function preload() {
     this.load.image('ball', ballPath);
@@ -76,73 +59,73 @@ function create() {
         0,
         "SCORE: 0", { fontSize: '32px', fill: '#fff' });
 
-    this.physics.world.setBoundsCollision(true, true, true, true)
+    // this.physics.world.setBoundsCollision(true, true, true, true)
 
-    ballsGroup = this.physics.add.group()
-    ballsGroup.enableBody = true;
+    // ballsGroup = this.physics.add.group()
+    // ballsGroup.enableBody = true;
     // this.platforms.enableBody = true
     // this.platforms.createMultiple(20, "ball")
 
     // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // right
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 700, 650, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 50, 400, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 50, 400, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 100, 150, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 100, 150, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // right
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 900, 400, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 800, 100, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
     // ball.setVisible(false);
     // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
-        Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
-        this.physics.world.bounds.height, // y position
+        this.physics.world.bounds.width / 2, // x position
+        this.physics.world.bounds.height - 30, // y position
         'paddle', // key of image for the sprite
     );
 
@@ -158,7 +141,7 @@ function create() {
 
     cursors = this.input.keyboard.createCursorKeys();
 
-    player1.setCollideWorldBounds(true);
+    // player1.setCollideWorldBounds(true);
     // player2.setCollideWorldBounds(true);
     // ball.setCollideWorldBounds(true);
     // ball.setBounce(1, 1);
@@ -197,10 +180,22 @@ function create() {
     // openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 100
+const paddleSpeed = 200
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
+
+    const scored = player1.y <= 0
+
+    if (scored) {
+        party.confetti(canvasParent)
+        player1 = this.physics.add.sprite(
+            this.physics.world.bounds.width / 2, // x position
+            this.physics.world.bounds.height - 30, // y position
+            'paddle', // key of image for the sprite
+        );
+        return
+    }
 
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
@@ -219,23 +214,22 @@ function update(time, delta) {
     // }
 
     // manage events for neck stretches
-    if (window.gameUpMove()) {
-        player1.body.setVelocityY(paddleSpeed * -1);
+    // if (window.gameUpMove()) {
+    //     player1.body.setVelocityY(paddleSpeed * -1);
+    //     player1.body.setAllowGravity(false)
+    //     lastMovetime = now
+    // } else 
+    if (window.gameJumpMove()) {
+        player1.body.setVelocityY((paddleSpeed + 80) * -1);
         player1.body.setAllowGravity(false)
         lastMovetime = now
-    } else if (window.gameJumpMove()) {
-        player1.body.setVelocityY((paddleSpeed) * -1);
-        player1.body.setAllowGravity(false)
-        lastMovetime = now
-    } else if (window.gameDownMove()) {
-        player1.body.setVelocityY(paddleSpeed);
     } else if (window.gameLeftMove()) {
-        player1.body.setVelocityX(paddleSpeed * -1);
+        player1.body.setVelocityX((paddleSpeed + 50) * -1);
         player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
-        player1.body.setVelocityX(paddleSpeed);
+        player1.body.setVelocityX(paddleSpeed + 50);
         player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed);
