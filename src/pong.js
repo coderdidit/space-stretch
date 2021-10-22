@@ -128,6 +128,8 @@ function create() {
         this.physics.world.bounds.height - 30, // y position
         'paddle', // key of image for the sprite
     );
+    player1.setDamping(true);
+    player1.setDrag(0.99);
 
     // player1.setScale(1.7)
 
@@ -139,7 +141,6 @@ function create() {
 
     // player2.setScale(1.7)
 
-    cursors = this.input.keyboard.createCursorKeys();
 
     // player1.setCollideWorldBounds(true);
     // player2.setCollideWorldBounds(true);
@@ -148,22 +149,7 @@ function create() {
     // player1.setImmovable(true);
     // player2.setImmovable(true);
 
-    const onCollide = (avatar, ballgr) => {
-        if (player1.body.onFloor()) {
-            const thisBgLanded = ballGroups.get(ballgr);
-            if (thisBgLanded == 0) {
-                score += 1
-                ballGroups.set(ballgr, 1)
-                ballgr.setTint("0x33dd33")
-                ballgr.setImmovable(false)
-
-                party.confetti(canvasParent)
-                scoreBoard.setText('Score: ' + score)
-            }
-        }
-    }
-
-    this.physics.add.collider(player1, ballsGroup, onCollide, null, this);
+    
     // this.physics.add.collider(ball, player2, null, null, this);
 
     // openingText = this.add.text(
@@ -185,17 +171,12 @@ const paddleSpeed = 200
 let lastMovetime = Date.now()
 function update(time, delta) {
 
-    const scored = player1.y <= 0
+    // const scored = player1.y <= 0
 
-    if (scored) {
-        party.confetti(canvasParent)
-        player1 = this.physics.add.sprite(
-            this.physics.world.bounds.width / 2, // x position
-            this.physics.world.bounds.height - 30, // y position
-            'paddle', // key of image for the sprite
-        );
-        return
-    }
+    // if (scored) {
+    //     party.confetti(canvasParent)
+    //     return
+    // }
 
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
@@ -244,4 +225,5 @@ function update(time, delta) {
     //         openingText.setVisible(false);
     //     }
     // }
+    this.physics.world.wrap(player1, 32);
 }
