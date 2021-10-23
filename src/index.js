@@ -157,10 +157,6 @@ const renderPrediction = async () => {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
                 landmarPointSize = 5
-            } else if (leftElbowToSholder > 60 && rightElbowToSholder > 60) {
-                window.gameStateMoveJump()
-                ctx.fillStyle = "blue";
-                landmarPointSize = 5
             } else if (mouthToLeftEyeAngle < activationAngle) { // left
                 window.gameStateMoveLeft()
                 ctx.fillStyle = "yellow";
@@ -171,13 +167,11 @@ const renderPrediction = async () => {
                 ctx.fillStyle = "red";
                 landmarPointSize = 5
             } 
-            // down
-            // else if (noseToLeftShoulder + noseToRightShoulder < 50) {
-            //     window.gameStateMoveDown()
-            //     ctx.fillStyle = "orange";
-            //     landmarPointSize = 5
-            // } 
-            else {
+            else if (leftElbowToSholder > 60 || rightElbowToSholder > 60) {
+                window.gameStateMoveJump()
+                ctx.fillStyle = "blue";
+                landmarPointSize = 5
+            } else {
                 window.gameStateStop()
                 ctx.fillStyle = "blue";
                 landmarPointSize = 3
