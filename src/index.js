@@ -153,7 +153,7 @@ const renderPrediction = async () => {
             let moveUpActivationScore = Math.max(Math.abs(nose[1] - leftEye[1]), Math.abs(nose[1] - rightEye[1]))
             const mouhtToNose = Math.abs(nose[1] - mouth[1])
             // up
-            if (moveUpActivationScore < 20) {
+            if (moveUpActivationScore < 10) {
                 window.gameStateMoveUp()
                 ctx.fillStyle = "green";
                 landmarPointSize = 5
