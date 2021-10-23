@@ -64,13 +64,20 @@ const renderPrediction = async () => {
     if (poses && poses.length > 0) {
         // camera.drawResults(poses);
         const poseKeypoints = poses[0].keypoints
+
         const nose = poseKeypoints[0]
         const leftEye = poseKeypoints[1]
         const rightEye = poseKeypoints[2]
+
+        const left_ear =poseKeypoints[3]
+        const right_ear = poseKeypoints[4]
+
         const left_shoulder = poseKeypoints[5]
         const right_shoulder = poseKeypoints[6]
+
         const left_elbow = poseKeypoints[7]
         const right_elbow = poseKeypoints[8]
+
         const left_wrist = poseKeypoints[9]
         const right_wrist = poseKeypoints[10]
 
@@ -89,6 +96,11 @@ const renderPrediction = async () => {
                 [rightEye.x, rightEye.y])
 
         console.log('noseToLeftEyeAngle', noseToLeftEyeAngle)
+
+        const lEarToSh = Math.abs(leftEye.y - left_shoulder.y)
+        const rEarToSh = Math.abs(rightEye.y - right_shoulder.y)
+
+        // console.log(`lEarToSh, rEarToSh`, lEarToSh, rEarToSh)
 
         if (noseToLeftEyeAngle < 0) {
             window.gameStateMoveLeft()
