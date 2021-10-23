@@ -166,7 +166,7 @@ function create() {
     // openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 200
+const paddleSpeed = 80
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
