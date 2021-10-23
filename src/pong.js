@@ -22,7 +22,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 500 },
+            gravity: { y: 0 },
         }
     }
 };
@@ -84,65 +84,21 @@ function create() {
     // this.platforms.createMultiple(20, "ball")
 
     // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
-
-        ballGroups.set(tile, 0);
-    }
-
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 50, 400, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
-
-        ballGroups.set(tile, 0);
-    }
-
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 100, 150, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
-
-        ballGroups.set(tile, 0);
-    }
-
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
-
-        ballGroups.set(tile, 0);
-    }
-
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'ball')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
-
-        ballGroups.set(tile, 0);
-    }
 
     // ball.setVisible(false);
     // ball.setScale(2)
 
     player1 = this.physics.add.sprite(
         Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
-        this.physics.world.bounds.height, // y position
+        this.physics.world.bounds.height - 200, // y position
         'paddle', // key of image for the sprite
     );
 
@@ -199,55 +155,27 @@ function create() {
 
 const paddleSpeed = 100
 // const ballSpeed = 400
-let lastMovetime = Date.now()
 function update(time, delta) {
 
-    player1.body.setVelocityX(0);
-    player1.body.setVelocityY(0);
-
-    // ball.body.setAllowGravity(false)
-    const now = Date.now()
-    const timeDiff = (now - lastMovetime) / 1000
-    // deffer gravity from in move state
-    if (timeDiff > 0.8) {
-        player1.body.setAllowGravity(true)
-    }
-    // if (window.gameLeftMove() || window.gameRightMove()) {
-    //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
-    //         player1.body.setVelocityY(paddleSpeed);
-    //     }
-    // }
+    player1.body.setAngularVelocity(0);
+    player1.body.setVelocity(0, 0);
 
     // manage events for neck stretches
     if (window.gameUpMove()) {
-        player1.body.setVelocityY(paddleSpeed * -1);
-        player1.body.setAllowGravity(false)
-        lastMovetime = now
+        // this.physics.velocityFromRotation(player1.rotation, -200, 
+        //     player1.body.velocity)
+        // player1.body.setVelocity(10, paddle/Speed * -1);
+        // this.physics.velocityFromRotation(player1.rotation, 200, player1.body.acceleration)
     } else if (window.gameJumpMove()) {
-        player1.body.setVelocityY((paddleSpeed) * -1);
-        player1.body.setAllowGravity(false)
-        lastMovetime = now
-    } else if (window.gameDownMove()) {
-        player1.body.setVelocityY(paddleSpeed);
+        const vx = Math.cos(player1.rotation) * 50
+        const vy = Math.sin(player1.rotation) * 50
+        player1.body.setVelocity(vx, vy);
+
+        // this.physics.velocityFromRotation(player1.rotation, 200,
+        //     player1.body.velocity)
     } else if (window.gameLeftMove()) {
-        player1.body.setVelocityX(paddleSpeed * -1);
-        player1.body.setAllowGravity(false)
-        lastMovetime = now
-        // player2.body.setVelocityX(paddleSpeed*-1);
+        player1.body.setAngularVelocity(100 * -1);
     } else if (window.gameRightMove()) {
-        player1.body.setVelocityX(paddleSpeed);
-        player1.body.setAllowGravity(false)
-        lastMovetime = now
-        // player2.body.setVelocityX(paddleSpeed);
+        player1.body.setAngularVelocity(100);
     }
-    // if (!gameStarted) {
-    //     if (cursors.space.isDown) {
-    //         console.log('space hit!')
-    //         ball.setVisible(true);
-    //         gameStarted = true;
-    //         // ball.setVelocityX(ballSpeed);
-    //         // ball.setVelocityY(300);
-    //         openingText.setVisible(false);
-    //     }
-    // }
 }
