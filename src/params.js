@@ -8,13 +8,7 @@
    '640 X 360': {width: 640, height: 360},
    '360 X 270': {width: 360, height: 270}
  };
- export const STATE = {
-   camera: {targetFPS: 60, sizeOption: '640 X 480'},
-   backend: '',
-   flags: {},
-   modelConfig: {},
-   model: posedetection.SupportedModels.MoveNet
- };
+ 
  export const BLAZEPOSE_CONFIG = {
    maxPoses: 1,
    type: 'full',
@@ -32,6 +26,13 @@
    customModel: '',
    enableTracking: false
  };
+ export const STATE = {
+  camera: {targetFPS: 60, sizeOption: '640 X 480'},
+  backend: '',
+  flags: {},
+  modelConfig: MOVENET_CONFIG,
+  model: posedetection.SupportedModels.MoveNet
+};
  /**
   * This map descripes tunable flags and theior corresponding types.
   *

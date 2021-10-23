@@ -55,11 +55,11 @@ const renderPrediction = async () => {
         alert(error);
     }
 
+    camera.drawCtx();
+
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
     }
-
-    camera.drawCtx();
 
     if (poses && poses.length > 0) {
         // camera.drawResults(poses);
