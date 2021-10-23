@@ -11,7 +11,7 @@ import { Camera } from './camera';
 // TODO wasm is much faster investigate why
 // + vendor the dist
 const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-console.log('registering wasm', wasmPath)
+console.log('registering wasm backend', wasmPath)
 tfjsWasm.setWasmPaths(wasmPath);
 
 // const video = document.getElementById('video')
