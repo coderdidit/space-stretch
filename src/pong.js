@@ -128,8 +128,8 @@ function create() {
         this.physics.world.bounds.height - 30, // y position
         'paddle', // key of image for the sprite
     );
-    player1.setDamping(true);
-    player1.setDrag(0.99);
+    // player1.setDamping(true);
+    // player1.setDrag(0.99);
 
     // player1.setScale(1.7)
 
@@ -202,16 +202,16 @@ function update(time, delta) {
     // } else 
     if (window.gameJumpMove()) {
         player1.body.setVelocityY((paddleSpeed + 80) * -1);
-        player1.body.setAllowGravity(false)
+        // player1.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameLeftMove()) {
         player1.body.setVelocityX((paddleSpeed + 50) * -1);
-        player1.body.setAllowGravity(false)
+        // player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
         player1.body.setVelocityX(paddleSpeed + 50);
-        player1.body.setAllowGravity(false)
+        // player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed);
     }

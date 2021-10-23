@@ -4,7 +4,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 // import '@tensorflow/tfjs-backend-webgl';
 // import '@tensorflow/tfjs-backend-cpu';
-import { getAngleBetween } from './angles';
+import { getAngleBetween, getAnglesBetween } from './angles';
 import { STATE } from './params';
 import { Camera } from './camera';
 
@@ -65,6 +65,8 @@ const renderPrediction = async () => {
         // camera.drawResults(poses);
         const poseKeypoints = poses[0].keypoints
         const nose = poseKeypoints[0]
+        const leftEye = poseKeypoints[1]
+        const rightEye = poseKeypoints[2]
         const left_shoulder = poseKeypoints[5]
         const right_shoulder = poseKeypoints[6]
         const left_elbow = poseKeypoints[7]
@@ -82,7 +84,17 @@ const renderPrediction = async () => {
 
         const bothArmsUp = (leftElbowToSholder > angle) && (rightElbowToSholder > angle)
 
-        if (bothArmsUp) {
+        const [noseToLeftEyeAngle, noseToRightEyeAngle] =
+            getAnglesBetween([nose.x, nose.y], [leftEye.x, leftEye.y],
+                [rightEye.x, rightEye.y])
+
+        console.log('noseToLeftEyeAngle', noseToLeftEyeAngle)
+
+        if (noseToLeftEyeAngle < 0) {
+            window.gameStateMoveLeft()
+        } else if (noseToRightEyeAngle < 0) {
+            window.gameStateMoveRight()
+        } else if (bothArmsUp) {
             moved = true
             window.gameStateMoveJump()
             ctx.fillStyle = "blue";
@@ -143,7 +155,7 @@ const setupGame = async () => {
 
     poseDetector = await poseDetection.createDetector(
         poseDetection.SupportedModels.MoveNet,
-        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER });
+        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING });
 
     renderPrediction()
 }
