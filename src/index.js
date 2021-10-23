@@ -57,6 +57,13 @@ const renderPrediction = async () => {
 
     camera.drawCtx();
 
+    const drawLine = (p1, p2) => {
+        camera.ctx.beginPath();
+        camera.ctx.moveTo(p1[0], p1[1])
+        camera.ctx.lineTo(p2[0], p2[1]);
+        camera.ctx.stroke();
+    }
+
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
     }
@@ -66,10 +73,18 @@ const renderPrediction = async () => {
         const poseKeypoints = poses[0].keypoints
 
         const nose = poseKeypoints[0]
+
+        // path from nose to right end
+        drawLine([nose.x, nose.y], [0, nose.y])
+
+        // path from nose to left end
+        const videoWidth = video.videoWidth
+        drawLine([nose.x, nose.y], [videoWidth, nose.y])
+
         const leftEye = poseKeypoints[1]
         const rightEye = poseKeypoints[2]
 
-        const left_ear =poseKeypoints[3]
+        const left_ear = poseKeypoints[3]
         const right_ear = poseKeypoints[4]
 
         const left_shoulder = poseKeypoints[5]
@@ -95,21 +110,23 @@ const renderPrediction = async () => {
             getAnglesBetween([nose.x, nose.y], [leftEye.x, leftEye.y],
                 [rightEye.x, rightEye.y])
 
-        console.log('noseToLeftEyeAngle', noseToLeftEyeAngle)
+        // console.log('noseToLeftEyeAngle', noseToLeftEyeAngle, noseToRightEyeAngle)
 
-        const lEarToSh = Math.abs(leftEye.y - left_shoulder.y)
-        const rEarToSh = Math.abs(rightEye.y - right_shoulder.y)
+        const noseYToLEyeY = nose.y - leftEye.y
+        const noseYToREyeY = nose.y - rightEye.y
 
-        // console.log(`lEarToSh, rEarToSh`, lEarToSh, rEarToSh)
-
-        if (noseToLeftEyeAngle < 0) {
+        if (noseYToLEyeY < 5) {
             window.gameStateMoveLeft()
-        } else if (noseToRightEyeAngle < 0) {
+            camera.ctx.fillStyle = "red";
+            console.log('LEFT')
+        } else if (noseYToREyeY < 5) {
             window.gameStateMoveRight()
+            camera.ctx.fillStyle = "yellow";
+            console.log('RIGHT')
         } else if (bothArmsUp) {
             moved = true
             window.gameStateMoveJump()
-            ctx.fillStyle = "blue";
+            camera.ctx.fillStyle = "blue";
         } else {
             if (moved) {
                 if (!oneOfArmsOrBothUp) {
@@ -120,11 +137,11 @@ const renderPrediction = async () => {
                 if (oneOfArmsOrBothUp) {
                     moved = true
                     window.gameStateMoveJump()
-                    ctx.fillStyle = "blue";
+                    camera.ctx.fillStyle = "blue";
                 } else {
                     moved = false
                     window.gameStateStop()
-                    ctx.fillStyle = "blue";
+                    camera.ctx.fillStyle = "white";
                 }
             }
 

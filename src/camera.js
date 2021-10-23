@@ -1,7 +1,6 @@
 import * as posedetection from '@tensorflow-models/pose-detection';
 
 import * as params from './params';
-import { isMobile } from './util';
 
 // These anchor points allow the pose pointcloud to resize according to its
 // position in the input.
@@ -133,10 +132,8 @@ export class Camera {
    * @param keypoints A list of keypoints.
    */
   drawKeypoints(keypoints) {
-    console.log('drawKeypoints')
     const keypointInd =
       posedetection.util.getKeypointIndexBySide(params.STATE.model);
-    console.log('drawKeypoints, keypointInd', keypointInd)
     this.ctx.fillStyle = 'Red';
     this.ctx.strokeStyle = 'White';
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
