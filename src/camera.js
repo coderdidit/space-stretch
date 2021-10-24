@@ -2,9 +2,6 @@ import * as posedetection from '@tensorflow-models/pose-detection';
 
 import * as params from './params';
 
-// These anchor points allow the pose pointcloud to resize according to its
-// position in the input.
-const ANCHOR_POINTS = [[0, 0, 0], [0, 1, 0], [-1, 0, 0], [-1, -1, 0]];
 
 // #ffffff - White
 // #800000 - Maroon
@@ -48,15 +45,11 @@ export class Camera {
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
 
-    const { targetFPS, sizeOption } = cameraParam;
+    const { targetFPS } = cameraParam;
     const videoConfig = {
       'audio': false,
       'video': {
         facingMode: 'user',
-        // Only setting the video to a specified size for large screen, on
-        // mobile devices accept the default size.
-        //  width: $size.width,
-        //  height: $size.height,
         frameRate: {
           ideal: targetFPS,
         }
@@ -85,7 +78,6 @@ export class Camera {
     camera.canvas.width = videoWidth;
     camera.canvas.height = videoHeight;
     const canvasContainer = document.getElementById('video-output')
-    //  canvasContainer.style = `width: ${videoWidth}px; height: ${videoHeight}px`;
 
     // Because the image from camera is mirrored, need to flip horizontally.
     camera.ctx.translate(camera.video.videoWidth, 0);
@@ -121,10 +113,6 @@ export class Camera {
       this.drawKeypoints(pose.keypoints);
       this.drawSkeleton(pose.keypoints, pose.id);
     }
-    // TODO check this
-    //  if (pose.keypoints3D != null && params.STATE.modelConfig.render3D) {
-    //    this.drawKeypoints3D(pose.keypoints3D);
-    //  }
   }
 
   /**
