@@ -25,7 +25,6 @@ const renderPrediction = async () => {
             };
         });
     }
-
     // pose detection
     let poses;
     try {
@@ -35,15 +34,11 @@ const renderPrediction = async () => {
         poseDetector = null;
         alert(error);
     }
-
     camera.drawCtx();
 
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
-    }
 
-    if (poses && poses.length > 0) {
-        // camera.drawResults(poses);
         const poseKeypoints = poses[0].keypoints
 
         const nose = poseKeypoints[0]
@@ -51,37 +46,37 @@ const renderPrediction = async () => {
         const leftEye = poseKeypoints[1]
         const rightEye = poseKeypoints[2]
 
-        const left_shoulder = poseKeypoints[5]
-        const right_shoulder = poseKeypoints[6]
+        const leftShoulder = poseKeypoints[5]
+        const rightShoulder = poseKeypoints[6]
 
-        const left_elbow = poseKeypoints[7]
-        const right_elbow = poseKeypoints[8]
+        const leftElbow = poseKeypoints[7]
+        const rightElbow = poseKeypoints[8]
 
-        const leftElbowToSholder = getAngleBetween(left_shoulder, left_elbow)
-        const rightElbowToSholder = getAngleBetween(right_shoulder, right_elbow)
+        const leftElbowToSholder = getAngleBetween(leftShoulder, leftElbow)
+        const rightElbowToSholder = getAngleBetween(rightShoulder, rightElbow)
 
+        // arms and elbows
         const angle = 40
-
         const bothArmsUp = (leftElbowToSholder > angle)
             && (rightElbowToSholder > angle)
 
         const oneOfArmsUp = (leftElbowToSholder > angle)
             || (rightElbowToSholder > angle) && !bothArmsUp
 
-
         const noseToLeftEyeYdistance = nose.y - leftEye.y
         const noseToRightEyeYdistance = nose.y - rightEye.y
 
+        // vissibility
         const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
         const noseVissible = nose.score > scoreThreshold
         const lEVissible = leftEye.score > scoreThreshold
         const REVissible = rightEye.score > scoreThreshold
 
-        const lShoulderVissible = left_shoulder.score > scoreThreshold
-        const rShoulderVissible = right_shoulder.score > scoreThreshold
-        const lElbowVissible = left_elbow.score > scoreThreshold
-        const rElbowVissible = right_elbow.score > scoreThreshold
+        const lShoulderVissible = leftShoulder.score > scoreThreshold
+        const rShoulderVissible = rightShoulder.score > scoreThreshold
+        const lElbowVissible = leftElbow.score > scoreThreshold
+        const rElbowVissible = rightElbow.score > scoreThreshold
 
         const shouldersAndElbowsVissible = lShoulderVissible && rShoulderVissible
             && lElbowVissible && rElbowVissible
@@ -100,12 +95,10 @@ const renderPrediction = async () => {
             camera.ctx.fillStyle = "blue";
         } else {
             if (movedUp) {
-                if (!oneOfArmsUp) {
-                    movedUp = false
-                }
+                movedUp = oneOfArmsUp
                 window.gameStateStop()
             } else {
-                if (oneOfArmsUp) {
+                if (shouldersAndElbowsVissible && oneOfArmsUp) {
                     movedUp = true
                     window.gameStateMoveUp()
                 } else {

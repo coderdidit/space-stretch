@@ -166,7 +166,7 @@ function create() {
     // openingText.setOrigin(0.5);
 }
 
-const paddleSpeed = 80
+const paddleSpeed = 130
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
@@ -196,34 +196,24 @@ function update(time, delta) {
 
     // manage events for neck stretches
     if (window.gameUpMove()) {
-        player1.body.setVelocityY(paddleSpeed * -1);
+        player1.body.setVelocityY((paddleSpeed + 40) * -1);
         // player1.body.setAllowGravity(false)
         lastMovetime = now
     } else 
     if (window.gameJumpMove()) {
-        player1.body.setVelocityY((paddleSpeed + 80) * -1);
+        player1.body.setVelocityY((paddleSpeed - 20) * -1);
         // player1.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameLeftMove()) {
-        player1.body.setVelocityX((paddleSpeed + 50) * -1);
+        player1.body.setVelocityX((paddleSpeed) * -1);
         // player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
-        player1.body.setVelocityX(paddleSpeed + 50);
+        player1.body.setVelocityX(paddleSpeed);
         // player1.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed);
     }
-    // if (!gameStarted) {
-    //     if (cursors.space.isDown) {
-    //         console.log('space hit!')
-    //         ball.setVisible(true);
-    //         gameStarted = true;
-    //         // ball.setVelocityX(ballSpeed);
-    //         // ball.setVelocityY(300);
-    //         openingText.setVisible(false);
-    //     }
-    // }
     this.physics.world.wrap(player1, 32);
 }
