@@ -2,8 +2,8 @@ import * as posedetection from '@tensorflow-models/pose-detection';
 
 import * as params from './pose-detection-cfg';
 
-const DEFAULT_LINE_WIDTH = 2;
-const DEFAULT_RADIUS = 4;
+const DEFAULT_LINE_WIDTH = 3;
+const DEFAULT_RADIUS = 6;
 
 
 // #ffffff - White

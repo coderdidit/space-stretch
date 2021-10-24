@@ -1,15 +1,18 @@
  import * as posedetection from '@tensorflow-models/pose-detection';
- 
+ import * as mpPose from '@mediapipe/pose';
+
 const BLAZEPOSE_CONFIG = {
    maxPoses: 1,
-   type: 'full',
    scoreThreshold: 0.65,
-   render3D: true
+   runtime: 'tfjs',
+   modelType: 'full',
+   solutionPath: `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mpPose.VERSION}`,
+   render3D: false
  };
 const MOVENET_CONFIG = {
    maxPoses: 1,
-   type: 'lightning',
-   scoreThreshold: 0.2,
+   modelType: posedetection.movenet.modelType.SINGLEPOSE_THUNDER,
+   scoreThreshold: 0.3,
    customModel: '',
    enableTracking: false
  };
@@ -23,11 +26,12 @@ export const modelToCfg = new Map([
 ])
 
 // pose detection model config
+const modelSet = moveNetModel
 export const PoseDetectionCfg = {
   camera: {targetFPS: 60},
   backend: 'wasm',
-  modelConfig: modelToCfg.get(moveNetModel),
-  model: moveNetModel
+  modelConfig: modelToCfg.get(modelSet),
+  model: modelSet
 }
 
 console.log('PoseDetectionCfg', PoseDetectionCfg)

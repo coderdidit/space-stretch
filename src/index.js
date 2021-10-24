@@ -2,6 +2,7 @@ import 'regenerator-runtime/runtime'
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
+import '@tensorflow/tfjs-backend-webgl'
 import { getAngleBetween } from './angles';
 import { PoseDetectionCfg } from './pose-detection-cfg';
 import { Camera } from './camera';
@@ -56,9 +57,10 @@ const handlePoseToGameEvents = (pose) => {
     const shouldersAndElbowsVissible = lShoulderVissible && rShoulderVissible
         && lElbowVissible && rElbowVissible
 
-    if (noseVissible && lEVissible && noseToLeftEyeYdistance < 5) {
+    const moveSideActivationDist = 8
+    if (noseVissible && lEVissible && noseToLeftEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveLeft()
-    } else if (noseVissible && REVissible && noseToRightEyeYdistance < 5) {
+    } else if (noseVissible && REVissible && noseToRightEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveRight()
     } else if (shouldersAndElbowsVissible && bothArmsUp) {
         movedUp = true
@@ -128,8 +130,8 @@ const setupGame = async () => {
 
     // setup AI
     poseDetector = await poseDetection.createDetector(
-        poseDetection.SupportedModels.MoveNet,
-        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING });
+        params.PoseDetectionCfg.model, 
+        params.PoseDetectionCfg.modelConfig);
 
     renderPrediction(camera, poseDetector)
 }

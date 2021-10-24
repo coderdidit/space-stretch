@@ -7,7 +7,7 @@ import party from "party-js"
 const canvasParent = document.getElementById('main-canvas')
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
-const gravity = 700
+const gravity = 1400
 
 const config = {
     type: Phaser.AUTO,
@@ -169,7 +169,7 @@ const handlePlayerMoves = (player, lastMovetime) => {
         lastMovetime = now
     } else
         if (window.gameJumpMove()) {
-            player.body.setVelocityY((playerSpeed - 20) * -1);
+            player.body.setVelocityY((playerSpeed - 35) * -1);
             player.body.setAllowGravity(false)
             lastMovetime = now
         } else if (window.gameLeftMove()) {
