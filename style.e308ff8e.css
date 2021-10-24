@@ -12,7 +12,7 @@ body h4, h3, h5, p {
 }
 
 #video-output {
-  transform: scaleX(-1);
+  /* transform: scaleX(-1); */
   border: 3px solid rgb(114, 107, 107);
 }
 
@@ -28,13 +28,14 @@ body h4, h3, h5, p {
 }
 
 #main-canvas canvas {
+  margin-top: 2%;
   color: #F0E6FE;
   border: 3px solid hotpink;
 }
 
 @media all and (min-width: 450px) {
   :root {
-    --webcam-width: 17vw;
+    --webcam-width: 20vw;
     --previewed-gotchi-p-top: 1.6%;
     --previewed-gotchi-font-size: 100%;
     --webcam-position-mr: auto;
@@ -176,4 +177,4 @@ body h4, h3, h5, p {
   padding-top: var(--previewed-gotchi-p-top);
 }
 
-/*# sourceMappingURL=https://coderdidit.com/aavegotchi-strech/style.e308ff8e.css.map */
+/*# sourceMappingURL=https://coderdidit.com/space-stretch/style.e308ff8e.css.map */

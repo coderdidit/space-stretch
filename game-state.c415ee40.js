@@ -126,6 +126,11 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = updatePlayerStats;
 var play = "play";
 var move = "move";
+var left = "left";
+var right = "right";
+var up = "up";
+var jump = "jump";
+var down = "down";
 var stop = "stop";
 var prevState = stop;
 var lastTimeChangeToStop = Date.now();
@@ -134,9 +139,54 @@ window.gameStateInit = function () {
   window.gameState = stop;
 };
 
+window.gameLeftMove = function () {
+  return window.gameState == left;
+};
+
+window.gameRightMove = function () {
+  return window.gameState == right;
+};
+
+window.gameUpMove = function () {
+  return window.gameState == up;
+};
+
+window.gameJumpMove = function () {
+  return window.gameState == jump;
+};
+
+window.gameDownMove = function () {
+  return window.gameState == down;
+};
+
 window.gameStateMove = function () {
   prevState = window.gameState;
   window.gameState = move;
+};
+
+window.gameStateMoveLeft = function () {
+  prevState = window.gameState;
+  window.gameState = left;
+};
+
+window.gameStateMoveRight = function () {
+  prevState = window.gameState;
+  window.gameState = right;
+};
+
+window.gameStateMoveUp = function () {
+  prevState = window.gameState;
+  window.gameState = up;
+};
+
+window.gameStateMoveDown = function () {
+  prevState = window.gameState;
+  window.gameState = down;
+};
+
+window.gameStateMoveJump = function () {
+  prevState = window.gameState;
+  window.gameState = jump;
 };
 
 window.gameStateStop = function () {
@@ -149,8 +199,14 @@ window.gameStateStop = function () {
   window.gameState = stop;
 };
 
+window.gameInMove = function () {
+  return window.gameState == left || window.gameState == right;
+};
+
 window.gameStateIsInMove = function () {
-  if (prevState == stop && window.gameState == move) {
+  var inMove = window.gameState == left || window.gameState == right;
+
+  if (prevState == stop && inMove) {
     var now = Date.now();
     var timeDiff = (now - lastTimeChangeToStop) / 1000; // if first time just increment
     // otherwise do not increment if it was flickering
@@ -164,7 +220,7 @@ window.gameStateIsInMove = function () {
     }
   }
 
-  return window.gameState == move;
+  return inMove;
 };
 
 window.gameStateInit();
@@ -213,7 +269,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52339" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65366" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -390,4 +446,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","game-state.js"], null)
-//# sourceMappingURL=https://coderdidit.com/aavegotchi-strech/game-state.c415ee40.js.map
+//# sourceMappingURL=https://coderdidit.com/space-stretch/game-state.c415ee40.js.map
