@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import ballPath from './vendor/assets/images/ball.png'
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
-import asteroidPath from './vendor/assets/images/asteroid2.png'
+import asteroidPath from './vendor/assets/images/asteroid3.png'
 import party from "party-js"
 
 
@@ -49,7 +49,7 @@ function create() {
     // background
     this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
     this.bg.setDisplaySize(config.width, config.height);
-    
+
     // openingText
     this.add.text(
         5,
@@ -73,61 +73,85 @@ function create() {
     ballsGroup = this.physics.add.group()
     ballsGroup.enableBody = true;
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // right
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // right
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // right
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-    }
+    //     ballGroups.set(tile, 0);
+    // }
 
-    // left
-    for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
-        tile.body.allowGravity = false
-        tile.setImmovable(true);
+    // // left
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
 
-        ballGroups.set(tile, 0);
-        // ballGroups.setTint("0x33dd33")
-    }
+    //     ballGroups.set(tile, 0);
+    //     // ballGroups.setTint("0x33dd33")
+    // }
 
+    let ballsGroup = this.physics.add.group({
+        key: 'asteroid',
+        quantity: 6,
+        collideWorldBounds: true,
+        immovable: true,
+        allowGravity: false,
+        setScale: { x: 5, y: 5}
+    })
+
+    // ballsGroup.forEach(tile => {
+    //     ballGroups.set(tile, 0)
+    //     tile.setScale(2)
+    // })
+
+    Phaser.Actions.RandomRectangle(ballsGroup.getChildren(), this.physics.world.bounds)
+
+
+    // for (let i = 0; i < 15; i++) {
+    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
+    //     tile.body.allowGravity = false
+    //     tile.setImmovable(true);
+
+    //     ballGroups.set(tile, 0);
+    // }
 
     player = this.physics.add.sprite(
         Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
@@ -140,16 +164,16 @@ function create() {
 
     const onCollide = (avatar, ballgr) => {
         if (avatar.body.onFloor()) {
-            const thisBgLanded = ballGroups.get(ballgr);
-            if (thisBgLanded == 0) {
-                score += 1
-                ballGroups.set(ballgr, 1)
-                ballgr.setTint("0x33dd33")
-                ballgr.setImmovable(false)
+            // const thisBgLanded = ballGroups.get(ballgr);
+            // if (thisBgLanded == 0) {
+            score += 1
+            // ballGroups.set(ballgr, 1)
+            ballgr.setTint("0x33dd33")
+            // ballgr.setImmovable(false)
 
-                party.confetti(canvasParent)
-                scoreBoard.setText('Score: ' + score)
-            }
+            // party.confetti(canvasParent)
+            scoreBoard.setText('Score: ' + score)
+            // }
         }
     }
 
@@ -167,7 +191,7 @@ const handlePlayerMoves = (player, lastMovetime) => {
     player.body.setVelocityX(0);
     player.body.setVelocityY(0);
 
-    const now = Date.now()    
+    const now = Date.now()
     const timeDiff = (now - lastMovetime) / 1000
     // deffer gravity from in move state
     if (timeDiff > 0.8) {
