@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import ballPath from './vendor/assets/images/ball.png'
-import paddlePath from './vendor/assets/images/paddle-horizontal.png'
+import shipPath from './vendor/assets/images/ship.png'
 import party from "party-js"
 
 
@@ -37,7 +37,7 @@ let scoreBoard
 
 function preload() {
     this.load.image('ball', ballPath);
-    this.load.image('paddle', paddlePath);
+    this.load.image('ship', shipPath);
 }
 
 function create() {
@@ -123,9 +123,10 @@ function create() {
     player = this.physics.add.sprite(
         Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
         this.physics.world.bounds.height, // y position
-        'paddle', // key of image for the sprite
+        'ship', // key of image for the sprite
     );
-
+    
+    player.setScale(2.2)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
