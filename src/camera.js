@@ -1,6 +1,9 @@
 import * as posedetection from '@tensorflow-models/pose-detection';
 
-import * as params from './params';
+import * as params from './pose-detection-cfg';
+
+const DEFAULT_LINE_WIDTH = 2;
+const DEFAULT_RADIUS = 4;
 
 
 // #ffffff - White
@@ -35,17 +38,13 @@ export class Camera {
     this.ctx = this.canvas.getContext('2d');
   }
 
-  /**
-   * Initiate a Camera instance and wait for the camera stream to be ready.
-   * @param cameraParam From app `STATE.camera`.
-   */
-  static async setupCamera(cameraParam) {
+  static async setupCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       throw new Error(
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
 
-    const { targetFPS } = cameraParam;
+    const { targetFPS } = params.PoseDetectionCfg.camera;
     const videoConfig = {
       'audio': false,
       'video': {
@@ -77,7 +76,6 @@ export class Camera {
 
     camera.canvas.width = videoWidth;
     camera.canvas.height = videoHeight;
-    const canvasContainer = document.getElementById('video-output')
 
     // Because the image from camera is mirrored, need to flip horizontally.
     camera.ctx.translate(camera.video.videoWidth, 0);
@@ -121,10 +119,10 @@ export class Camera {
    */
   drawKeypoints(keypoints) {
     const keypointInd =
-      posedetection.util.getKeypointIndexBySide(params.STATE.model);
+      posedetection.util.getKeypointIndexBySide(params.PoseDetectionCfg.model);
     this.ctx.fillStyle = 'Red';
     this.ctx.strokeStyle = 'White';
-    this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
+    this.ctx.lineWidth = DEFAULT_LINE_WIDTH;
 
     for (const i of keypointInd.middle) {
       this.drawKeypoint(keypoints[i]);
@@ -144,10 +142,10 @@ export class Camera {
   drawKeypoint(keypoint) {
     // If score is null, just show the keypoint.
     const score = keypoint.score != null ? keypoint.score : 1;
-    const scoreThreshold = params.STATE.modelConfig.scoreThreshold || 0;
+    const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
     if (score >= scoreThreshold) {
       const circle = new Path2D();
-      circle.arc(keypoint.x, keypoint.y, params.DEFAULT_RADIUS, 0, 2 * Math.PI);
+      circle.arc(keypoint.x, keypoint.y, DEFAULT_RADIUS, 0, 2 * Math.PI);
       this.ctx.fill(circle);
       this.ctx.stroke(circle);
     }
@@ -159,14 +157,14 @@ export class Camera {
    */
   drawSkeleton(keypoints, poseId) {
     // Each poseId is mapped to a color in the color palette.
-    const color = params.STATE.modelConfig.enableTracking && poseId != null ?
+    const color = params.PoseDetectionCfg.modelConfig.enableTracking && poseId != null ?
       COLOR_PALETTE[poseId % 20] :
       'White';
     this.ctx.fillStyle = color;
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
 
-    posedetection.util.getAdjacentPairs(params.STATE.model).forEach(([
+    posedetection.util.getAdjacentPairs(params.PoseDetectionCfg.model).forEach(([
       i, j
     ]) => {
       const kp1 = keypoints[i];
@@ -175,7 +173,7 @@ export class Camera {
       // If score is null, just show the keypoint.
       const score1 = kp1.score != null ? kp1.score : 1;
       const score2 = kp2.score != null ? kp2.score : 1;
-      const scoreThreshold = params.STATE.modelConfig.scoreThreshold || 0;
+      const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
       if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
         this.ctx.beginPath();

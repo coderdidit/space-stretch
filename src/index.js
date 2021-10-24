@@ -2,10 +2,8 @@ import 'regenerator-runtime/runtime'
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-// import '@tensorflow/tfjs-backend-webgl';
-// import '@tensorflow/tfjs-backend-cpu';
 import { getAngleBetween, getAnglesBetween } from './angles';
-import { STATE } from './params';
+import { PoseDetectionCfg } from './pose-detection-cfg';
 import { Camera } from './camera';
 
 // TODO wasm is much faster investigate why
@@ -14,27 +12,12 @@ const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${t
 console.log('registering wasm backend', wasmPath)
 tfjsWasm.setWasmPaths(wasmPath);
 
-// const video = document.getElementById('video')
-// const canvas = document.getElementById('video-output')
+let camera, poseDetector;
 
-let ctx, poseDetector;
-
-const setupCamera = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-        'audio': false,
-        'video': { facingMode: 'user' },
-    })
-    video.srcObject = stream
-
-    return new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-            resolve(video)
-        }
-    })
-}
-
-let moved = false
 const renderPrediction = async () => {
+    console.log('renderPrediction', camera)
+    let moved = false
+
     if (camera.video.readyState < 2) {
         await new Promise((resolve) => {
             camera.video.onloadeddata = () => {
@@ -43,7 +26,7 @@ const renderPrediction = async () => {
         });
     }
 
-    ctx = camera.ctx
+    const ctx = camera.ctx
 
     // pose detection
     let poses;
@@ -152,41 +135,28 @@ const renderPrediction = async () => {
     requestAnimationFrame(renderPrediction)
 }
 
-let camera;
-
 const setupGame = async () => {
-    camera = await Camera.setupCamera(STATE.camera);
+    camera = await Camera.setupCamera();
+    console.log('setupCamera finished', camera)
+    await tf.setBackend(PoseDetectionCfg.backend)
+    console.log(`tfjs backend loaded ${PoseDetectionCfg.backend}`)
 
-    // await setupCamera()
-    console.log('setupCamera finished')
-    // video.play()
-    await tf.setBackend('wasm')
-    console.log('tfjs backend loaded wasm')
-
-    // const videoWidth = video.videoWidth
-    // const videoHeight = video.videoHeight
-    // video.width = videoWidth
-    // video.height = videoHeight
-
-    // canvas.width = videoWidth
-    // canvas.height = videoHeight
-
+    // hide main bg
     const welcomBg = document.getElementById('welcom-bg')
     welcomBg.style.display = 'none'
+
+    // unhide game and camera canvas
     const mainCanvas = document.getElementById('main-canvas')
     mainCanvas.style.display = 'block'
-
     const videoOutput = document.getElementById('video-output')
     videoOutput.style.display = 'block'
 
-    // ctx = canvas.getContext('2d')
-    // ctx.fillStyle = "rgba(255, 0, 0, 0.5)"
-
+    // setup AI
     poseDetector = await poseDetection.createDetector(
         poseDetection.SupportedModels.MoveNet,
         { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING });
 
-    renderPrediction()
+    renderPrediction(camera, poseDetector)
 }
 
 const playBtn = document.getElementById('play-btn')
