@@ -1,5 +1,4 @@
-# Aavegotchi Strech Mini Game 
-## (Moralis Aavegotchi Game Jam)
+# Space Strech Mini Game 
 
 ![gotchi-jam-devlog2](https://user-images.githubusercontent.com/86926500/132110272-a570f63c-3a8d-4161-b474-7e1e7043d8d2.gif)
 
@@ -7,26 +6,10 @@
 
 [Paly it here (game is deployed)](https://coderdidit.com/aavegotchi-strech)
 
-### Supported features so far:
-- It works mainly on `Google Chrome`
-- login with `Metamask` by using `Moralis` and display logged-in address
-- user is registered in `Moralis` users tables
-    - storing user `score`, `total strech count` in `Moralis`
-    - next time user log in `score` and `total strech count` will be preserved
-- preview `Aavegotchi` from `Aavegotchi` smart contract with `Moralis`
-    - load `Aavegotchi SVG` from `previewAavegotchi` function in `Aavegotchi` smart contract
-    - display info about previewed `Aavegotchi NFT`
-    - use `Moralis` Cloud Function to `previewAavegotchi`
-- Move `Aavegotchi` by stretching your neck (moving your head) thanks to `Tensorflow.js` Face recognition
+The Goal of this project is to Gamify health
 
-### What's Next
-- Use `ReactJS` instead of Vanilla `ES6 JavaScript` for better state management
-- improve gameplay (By using `Phaser` instead of `p5.js`)
-    - I have an idea for a `vertical floppy bird` like game
-    - I think neck streches can be integrated nicelly into that
-- load `Aavegotchi SVG` from real `Aavegotchi NFT`
-- display info about loaded `Aavegotchi NFT`
-- `Aavegotchi NFT` will gain `Experience` through gameplay
+Mainly Gamify neck and upper back stretches for Developers 
+And people that spends lots of time in front of the computer
 
 # Technologies Used
 - Moralis
