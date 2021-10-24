@@ -14,6 +14,7 @@ const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${t
 console.log('registering wasm backend', wasmPath)
 tfjsWasm.setWasmPaths(wasmPath);
 
+// TODO implement jump up move after 3 stop, up moves 
 const handlePoseToGameEvents = (pose) => {
     const poseKeypoints = pose.keypoints
 
@@ -36,9 +37,6 @@ const handlePoseToGameEvents = (pose) => {
     const bothArmsUp = (leftElbowToSholder > angle)
         && (rightElbowToSholder > angle)
 
-    const oneOfArmsUp = (leftElbowToSholder > angle)
-        || (rightElbowToSholder > angle) && !bothArmsUp
-
     const noseToLeftEyeYdistance = nose.y - leftEye.y
     const noseToRightEyeYdistance = nose.y - rightEye.y
 
@@ -54,30 +52,30 @@ const handlePoseToGameEvents = (pose) => {
     const lElbowVissible = leftElbow.score > scoreThreshold
     const rElbowVissible = rightElbow.score > scoreThreshold
 
-    const shouldersAndElbowsVissible = lShoulderVissible && rShoulderVissible
-        && lElbowVissible && rElbowVissible
+    const shouldersVisible = lShoulderVissible && rShoulderVissible
+
+    let visibleShoulders = 0
+    if (lElbowVissible) {
+        visibleShoulders += 1
+    }
+    if (rElbowVissible) {
+        visibleShoulders += 1
+    }
+    const shouldersAndElbowsVissible = shouldersVisible && visibleShoulders == 2
 
     const moveSideActivationDist = 8
-    if (noseVissible && lEVissible && noseToLeftEyeYdistance < moveSideActivationDist) {
+    if (noseVissible && lEVissible
+        && noseToLeftEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveLeft()
-    } else if (noseVissible && REVissible && noseToRightEyeYdistance < moveSideActivationDist) {
+    } else if (noseVissible && REVissible
+        && noseToRightEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveRight()
     } else if (shouldersAndElbowsVissible && bothArmsUp) {
         movedUp = true
-        window.gameStateMoveJump()
+        window.gameStateMoveUp()
     } else {
-        if (movedUp) {
-            movedUp = oneOfArmsUp
-            window.gameStateStop()
-        } else {
-            if (shouldersAndElbowsVissible && oneOfArmsUp) {
-                movedUp = true
-                window.gameStateMoveUp()
-            } else {
-                movedUp = false
-                window.gameStateStop()
-            }
-        }
+        movedUp = false
+        window.gameStateStop()
     }
 }
 
@@ -130,7 +128,7 @@ const setupGame = async () => {
 
     // setup AI
     poseDetector = await poseDetection.createDetector(
-        params.PoseDetectionCfg.model, 
+        params.PoseDetectionCfg.model,
         params.PoseDetectionCfg.modelConfig);
 
     renderPrediction(camera, poseDetector)
