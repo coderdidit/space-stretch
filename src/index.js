@@ -54,23 +54,35 @@ const handlePoseToGameEvents = (pose) => {
     const lElbowVissible = leftElbow.score > scoreThreshold
     const rElbowVissible = rightElbow.score > scoreThreshold
 
-    const shouldersAndElbowsVissible = lShoulderVissible && rShoulderVissible
-        && lElbowVissible && rElbowVissible
+    const shouldersVisible = lShoulderVissible && rShoulderVissible
+
+    let visibleShoulders = 0
+    if (lElbowVissible) {
+        visibleShoulders +=1
+    }
+    if (rElbowVissible) {
+        visibleShoulders +=1
+    }
+
+    const shouldersAndElbowsVissible = shouldersVisible && visibleShoulders == 2
+
+    const shouldersAndAtleast1ElbowVissible = shouldersVisible && visibleShoulders > 0
 
     const moveSideActivationDist = 8
     if (noseVissible && lEVissible && noseToLeftEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveLeft()
     } else if (noseVissible && REVissible && noseToRightEyeYdistance < moveSideActivationDist) {
         window.gameStateMoveRight()
-    } else if (shouldersAndElbowsVissible && bothArmsUp) {
+    } else if (shouldersAndElbowsVissible && shouldersAndAtleast1ElbowVissible) {
         movedUp = true
         window.gameStateMoveJump()
-    } else {
+    } 
+    else {
         if (movedUp) {
             movedUp = oneOfArmsUp
             window.gameStateStop()
         } else {
-            if (shouldersAndElbowsVissible && oneOfArmsUp) {
+            if (shouldersAndAtleast1ElbowVissible && oneOfArmsUp) {
                 movedUp = true
                 window.gameStateMoveUp()
             } else {

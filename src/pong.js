@@ -137,7 +137,7 @@ function create() {
                 ballgr.setTint("0x33dd33")
                 ballgr.setImmovable(false)
 
-                party.confetti(canvasParent)
+                // party.confetti(canvasParent)
                 scoreBoard.setText('Score: ' + score)
             }
         }
@@ -146,7 +146,7 @@ function create() {
     this.physics.add.collider(player, ballsGroup, onCollide, null, this);
 }
 
-const playerSpeed = 100
+const playerSpeed = 70
 let lastMovetime = Date.now()
 function update(time, delta) {
     // manage events for neck stretches
@@ -164,12 +164,12 @@ const handlePlayerMoves = (player, lastMovetime) => {
         player.body.setAllowGravity(true)
     }
     if (window.gameUpMove()) {
-        player.body.setVelocityY((gravity + playerSpeed) * -1);
+        player.body.setVelocityY((playerSpeed + gravity/2) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now
     } else
         if (window.gameJumpMove()) {
-            player.body.setVelocityY((playerSpeed - 35) * -1);
+            player.body.setVelocityY((playerSpeed) * -1);
             player.body.setAllowGravity(false)
             lastMovetime = now
         } else if (window.gameLeftMove()) {
