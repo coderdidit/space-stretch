@@ -1,13 +1,15 @@
 import Phaser from "phaser";
 import ballPath from './vendor/assets/images/ball.png'
 import shipPath from './vendor/assets/images/ship.png'
+import bgPath from './vendor/assets/images/space.jpeg'
+import asteroidPath from './vendor/assets/images/asteroid2.png'
 import party from "party-js"
 
 
 const canvasParent = document.getElementById('main-canvas')
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
-const gravity = 600
+const gravity = 550
 
 const config = {
     type: Phaser.AUTO,
@@ -36,12 +38,18 @@ let score = 0
 let scoreBoard
 
 function preload() {
-    this.load.image('ball', ballPath);
+    this.load.image('asteroid', asteroidPath);
     this.load.image('ship', shipPath);
+    this.load.image('ball', ballPath);
+    this.load.image('bg', bgPath);
 }
 
 function create() {
 
+    // background
+    this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
+    this.bg.setDisplaySize(config.width, config.height);
+    
     // openingText
     this.add.text(
         5,
@@ -67,7 +75,7 @@ function create() {
 
     // left
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
+        const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
@@ -76,7 +84,7 @@ function create() {
 
     // right
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'ball')
+        const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
@@ -85,7 +93,7 @@ function create() {
 
     // left
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 50, 400, 'ball')
+        const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
@@ -94,7 +102,7 @@ function create() {
 
     // left
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 100, 150, 'ball')
+        const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
@@ -103,7 +111,7 @@ function create() {
 
     // right
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'ball')
+        const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
@@ -112,11 +120,12 @@ function create() {
 
     // left
     for (let i = 0; i < 15; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'ball')
+        const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
 
         ballGroups.set(tile, 0);
+        // ballGroups.setTint("0x33dd33")
     }
 
 
@@ -125,7 +134,7 @@ function create() {
         this.physics.world.bounds.height, // y position
         'ship', // key of image for the sprite
     );
-    
+
     player.setScale(2.2)
     player.setCollideWorldBounds(true);
 
