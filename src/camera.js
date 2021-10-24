@@ -31,6 +31,9 @@ const COLOR_PALETTE = [
   '#9a6324', '#000075', '#f58231', '#4363d8', '#ffd8b1', '#dcbeff', '#808000',
   '#ffe119', '#911eb4', '#bfef45', '#f032e6', '#3cb44b', '#a9a9a9'
 ];
+
+const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
+
 export class Camera {
   constructor() {
     this.video = document.getElementById('video');
@@ -99,6 +102,15 @@ export class Camera {
   drawResults(poses) {
     for (const pose of poses) {
       this.drawResult(pose);
+
+      // horizontal line for reference
+      const nose = pose.keypoints[0]
+      if (nose.score > scoreThreshold) {
+        // path from nose to right end
+        this.drawLine(nose, { x: 0, y: nose.y })
+        // path from nose to left end      
+        this.drawLine(nose, { x: this.video.videoWidth, y: nose.y })
+      }
     }
   }
 
@@ -142,7 +154,6 @@ export class Camera {
   drawKeypoint(keypoint) {
     // If score is null, just show the keypoint.
     const score = keypoint.score != null ? keypoint.score : 1;
-    const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
     if (score >= scoreThreshold) {
       const circle = new Path2D();
       circle.arc(keypoint.x, keypoint.y, DEFAULT_RADIUS, 0, 2 * Math.PI);
@@ -176,11 +187,16 @@ export class Camera {
       const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
       if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(kp1.x, kp1.y);
-        this.ctx.lineTo(kp2.x, kp2.y);
-        this.ctx.stroke();
+        this.drawLine(kp1, kp2)
       }
     });
   }
+
+  drawLine(p1, p2) {
+    this.ctx.beginPath();
+    this.ctx.moveTo(p1.x, p1.y)
+    this.ctx.lineTo(p2.x, p2.y);
+    this.ctx.stroke();
+  }
 }
+

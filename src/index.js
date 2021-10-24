@@ -5,6 +5,7 @@ import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import { getAngleBetween, getAnglesBetween } from './angles';
 import { PoseDetectionCfg } from './pose-detection-cfg';
 import { Camera } from './camera';
+import * as params from './pose-detection-cfg';
 
 // TODO wasm is much faster investigate why
 // + vendor the dist
@@ -15,7 +16,6 @@ tfjsWasm.setWasmPaths(wasmPath);
 let camera, poseDetector;
 
 const renderPrediction = async () => {
-    console.log('renderPrediction', camera)
     let moved = false
 
     if (camera.video.readyState < 2) {
@@ -25,8 +25,6 @@ const renderPrediction = async () => {
             };
         });
     }
-
-    const ctx = camera.ctx
 
     // pose detection
     let poses;
@@ -40,13 +38,6 @@ const renderPrediction = async () => {
 
     camera.drawCtx();
 
-    const drawLine = (p1, p2) => {
-        camera.ctx.beginPath();
-        camera.ctx.moveTo(p1[0], p1[1])
-        camera.ctx.lineTo(p2[0], p2[1]);
-        camera.ctx.stroke();
-    }
-
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
     }
@@ -56,13 +47,6 @@ const renderPrediction = async () => {
         const poseKeypoints = poses[0].keypoints
 
         const nose = poseKeypoints[0]
-
-        // path from nose to right end
-        drawLine([nose.x, nose.y], [0, nose.y])
-
-        // path from nose to left end
-        const videoWidth = video.videoWidth
-        drawLine([nose.x, nose.y], [videoWidth, nose.y])
 
         const leftEye = poseKeypoints[1]
         const rightEye = poseKeypoints[2]
@@ -85,28 +69,37 @@ const renderPrediction = async () => {
         const elbowsAboveNose = left_elbow["y"] > nose["y"] || right_elbow["y"] > nose["y"]
 
         const angle = 40
+
         const oneOfArmsOrBothUp = (leftElbowToSholder > angle) || (rightElbowToSholder > angle)
 
         const bothArmsUp = (leftElbowToSholder > angle) && (rightElbowToSholder > angle)
 
-        const [noseToLeftEyeAngle, noseToRightEyeAngle] =
-            getAnglesBetween([nose.x, nose.y], [leftEye.x, leftEye.y],
-                [rightEye.x, rightEye.y])
+        const noseToLeftEyeYdistance = nose.y - leftEye.y
+        const noseToRightEyeYdistance = nose.y - rightEye.y
 
-        // console.log('noseToLeftEyeAngle', noseToLeftEyeAngle, noseToRightEyeAngle)
+        const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
-        const noseYToLEyeY = nose.y - leftEye.y
-        const noseYToREyeY = nose.y - rightEye.y
+        const noseVissible = nose.score > scoreThreshold
+        const lEVissible = leftEye.score > scoreThreshold
+        const REVissible = rightEye.score > scoreThreshold
 
-        if (noseYToLEyeY < 5) {
+        const lShoulderVissible = left_shoulder.score > scoreThreshold
+        const rShoulderVissible = right_shoulder.score > scoreThreshold
+        const lElbowVissible = left_elbow.score > scoreThreshold
+        const rElbowVissible = right_elbow.score > scoreThreshold
+
+        const shouldersAndElbowsVissible = lShoulderVissible && rShoulderVissible
+            && lElbowVissible && rElbowVissible
+
+        if (noseVissible && lEVissible && noseToLeftEyeYdistance < 5) {
             window.gameStateMoveLeft()
             camera.ctx.fillStyle = "red";
             console.log('LEFT')
-        } else if (noseYToREyeY < 5) {
+        } else if (noseVissible && REVissible && noseToRightEyeYdistance < 5) {
             window.gameStateMoveRight()
             camera.ctx.fillStyle = "yellow";
             console.log('RIGHT')
-        } else if (bothArmsUp) {
+        } else if (shouldersAndElbowsVissible && bothArmsUp) {
             moved = true
             window.gameStateMoveJump()
             camera.ctx.fillStyle = "blue";
