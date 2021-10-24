@@ -1,7 +1,7 @@
 {
-  "name": "aavegotchi-strech-minigame",
+  "name": "space-stretch",
   "version": "1.0.0",
-  "description": "neck interactive trainer DEMO",
+  "description": "space-stretch",
   "main": "src/index.js",
   "engines": {
     "node": ">=14.17.0"
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest",
     "start": "parcel src/index.html",
-    "build": "rm -rf dist && parcel src/index.html --public-url https://coderdidit.com/aavegotchi-strech --no-cache"
+    "build": "rm -rf dist && parcel src/index.html --public-url https://coderdidit.com/space-stretch --no-cache"
   },
   "author": "Marcin Kuzdowicz",
   "license": "ISC",
