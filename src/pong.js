@@ -195,11 +195,11 @@ function update(time, delta) {
     // }
 
     // manage events for neck stretches
-    // if (window.gameUpMove()) {
-    //     player1.body.setVelocityY(paddleSpeed * -1);
-    //     player1.body.setAllowGravity(false)
-    //     lastMovetime = now
-    // } else 
+    if (window.gameUpMove()) {
+        player1.body.setVelocityY(paddleSpeed * -1);
+        // player1.body.setAllowGravity(false)
+        lastMovetime = now
+    } else 
     if (window.gameJumpMove()) {
         player1.body.setVelocityY((paddleSpeed + 80) * -1);
         // player1.body.setAllowGravity(false)

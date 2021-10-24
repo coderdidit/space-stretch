@@ -14,9 +14,9 @@ console.log('registering wasm backend', wasmPath)
 tfjsWasm.setWasmPaths(wasmPath);
 
 let camera, poseDetector;
+let movedUp = false
 
 const renderPrediction = async () => {
-    let moved = false
 
     if (camera.video.readyState < 2) {
         await new Promise((resolve) => {
@@ -51,28 +51,23 @@ const renderPrediction = async () => {
         const leftEye = poseKeypoints[1]
         const rightEye = poseKeypoints[2]
 
-        const left_ear = poseKeypoints[3]
-        const right_ear = poseKeypoints[4]
-
         const left_shoulder = poseKeypoints[5]
         const right_shoulder = poseKeypoints[6]
 
         const left_elbow = poseKeypoints[7]
         const right_elbow = poseKeypoints[8]
 
-        const left_wrist = poseKeypoints[9]
-        const right_wrist = poseKeypoints[10]
-
         const leftElbowToSholder = getAngleBetween(left_shoulder, left_elbow)
         const rightElbowToSholder = getAngleBetween(right_shoulder, right_elbow)
 
-        const elbowsAboveNose = left_elbow["y"] > nose["y"] || right_elbow["y"] > nose["y"]
-
         const angle = 40
 
-        const oneOfArmsOrBothUp = (leftElbowToSholder > angle) || (rightElbowToSholder > angle)
+        const bothArmsUp = (leftElbowToSholder > angle)
+            && (rightElbowToSholder > angle)
 
-        const bothArmsUp = (leftElbowToSholder > angle) && (rightElbowToSholder > angle)
+        const oneOfArmsUp = (leftElbowToSholder > angle)
+            || (rightElbowToSholder > angle) && !bothArmsUp
+
 
         const noseToLeftEyeYdistance = nose.y - leftEye.y
         const noseToRightEyeYdistance = nose.y - rightEye.y
@@ -100,30 +95,25 @@ const renderPrediction = async () => {
             camera.ctx.fillStyle = "yellow";
             console.log('RIGHT')
         } else if (shouldersAndElbowsVissible && bothArmsUp) {
-            moved = true
+            movedUp = true
             window.gameStateMoveJump()
             camera.ctx.fillStyle = "blue";
         } else {
-            if (moved) {
-                if (!oneOfArmsOrBothUp) {
-                    moved = false
+            if (movedUp) {
+                if (!oneOfArmsUp) {
+                    movedUp = false
                 }
                 window.gameStateStop()
             } else {
-                if (oneOfArmsOrBothUp) {
-                    moved = true
-                    window.gameStateMoveJump()
-                    camera.ctx.fillStyle = "blue";
+                if (oneOfArmsUp) {
+                    movedUp = true
+                    window.gameStateMoveUp()
                 } else {
-                    moved = false
+                    movedUp = false
                     window.gameStateStop()
-                    camera.ctx.fillStyle = "white";
                 }
             }
-
         }
-
-
     }
     requestAnimationFrame(renderPrediction)
 }
