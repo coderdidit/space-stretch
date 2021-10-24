@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime'
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-import { getAngleBetween, getAnglesBetween } from './angles';
+import { getAngleBetween } from './angles';
 import { PoseDetectionCfg } from './pose-detection-cfg';
 import { Camera } from './camera';
 import * as params from './pose-detection-cfg';

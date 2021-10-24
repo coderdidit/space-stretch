@@ -1,9 +1,6 @@
 import Phaser from "phaser";
 import ballPath from './vendor/assets/images/ball.png'
 import paddlePath from './vendor/assets/images/paddle-horizontal.png'
-import party from "party-js"
-
-const canvasParent = document.getElementById('main-canvas')
 
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
@@ -45,7 +42,7 @@ function create() {
     this.add.text(
         5,
         5,
-        'Land on asteroids 🌝',
+        'Move the paddle left, right, up, jump',
         {
             fontFamily: 'Monaco, Courier, monospace',
             fontSize: '25px',
@@ -53,131 +50,18 @@ function create() {
         }
     );
 
-    //Add the scoreboard in
-    scoreBoard = this.add.text(
-        this.physics.world.bounds.width - 200,
-        0,
-        "SCORE: 0", { fontSize: '32px', fill: '#fff' });
-
-    // this.physics.world.setBoundsCollision(true, true, true, true)
-
-    // ballsGroup = this.physics.add.group()
-    // ballsGroup.enableBody = true;
-    // this.platforms.enableBody = true
-    // this.platforms.createMultiple(20, "ball")
-
-    // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // right
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 700, 650, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 50, 400, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 100, 150, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // right
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 900, 400, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 800, 100, 'ball')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // ball.setVisible(false);
-    // ball.setScale(2)
-
     player1 = this.physics.add.sprite(
         this.physics.world.bounds.width / 2, // x position
         this.physics.world.bounds.height - 30, // y position
         'paddle', // key of image for the sprite
     );
-    // player1.setDamping(true);
-    // player1.setDrag(0.99);
-
-    // player1.setScale(1.7)
-
-    // player2 = this.physics.add.sprite(
-    //     this.physics.world.bounds.width / 2, // x position
-    //     0, // y position
-    //     'paddle', // key of image for the sprite
-    // );
-
-    // player2.setScale(1.7)
-
-
-    // player1.setCollideWorldBounds(true);
-    // player2.setCollideWorldBounds(true);
-    // ball.setCollideWorldBounds(true);
-    // ball.setBounce(1, 1);
-    // player1.setImmovable(true);
-    // player2.setImmovable(true);
-
     
-    // this.physics.add.collider(ball, player2, null, null, this);
-
-    // openingText = this.add.text(
-    //     this.physics.world.bounds.width / 2,
-    //     this.physics.world.bounds.height / 2,
-    //     'Press SPACE to Start',
-    //     {
-    //         fontFamily: 'Monaco, Courier, monospace',
-    //         fontSize: '50px',
-    //         fill: '#fff'
-    //     }
-    // );
-
-    // openingText.setOrigin(0.5);
 }
 
 const paddleSpeed = 130
 // const ballSpeed = 400
 let lastMovetime = Date.now()
 function update(time, delta) {
-
-    // const scored = player1.y <= 0
-
-    // if (scored) {
-    //     party.confetti(canvasParent)
-    //     return
-    // }
-
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
 
@@ -188,32 +72,29 @@ function update(time, delta) {
     if (timeDiff > 0.8) {
         player1.body.setAllowGravity(true)
     }
-    // if (window.gameLeftMove() || window.gameRightMove()) {
-    //     if(player1.x <= 65 || player1.x >= this.physics.world.bounds.width-100) {
-    //         player1.body.setVelocityY(paddleSpeed);
-    //     }
-    // }
-
     // manage events for neck stretches
+    handlePlayerMoves(player1, lastMovetime)
+    this.physics.world.wrap(player1, 32);
+}
+
+const handlePlayerMoves = (player, lastMovetime) => {
     if (window.gameUpMove()) {
-        player1.body.setVelocityY((paddleSpeed + 40) * -1);
-        // player1.body.setAllowGravity(false)
+        player.body.setVelocityY((paddleSpeed + 40) * -1);
+        // player.body.setAllowGravity(false)
         lastMovetime = now
     } else 
     if (window.gameJumpMove()) {
-        player1.body.setVelocityY((paddleSpeed - 20) * -1);
-        // player1.body.setAllowGravity(false)
+        player.body.setVelocityY((paddleSpeed - 20) * -1);
+        // player.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameLeftMove()) {
-        player1.body.setVelocityX((paddleSpeed) * -1);
-        // player1.body.setAllowGravity(false)
+        player.body.setVelocityX((paddleSpeed) * -1);
+        // player.body.setAllowGravity(false)
         lastMovetime = now
         // player2.body.setVelocityX(paddleSpeed*-1);
     } else if (window.gameRightMove()) {
-        player1.body.setVelocityX(paddleSpeed);
-        // player1.body.setAllowGravity(false)
+        player.body.setVelocityX(paddleSpeed);
+        // player.body.setAllowGravity(false)
         lastMovetime = now
-        // player2.body.setVelocityX(paddleSpeed);
     }
-    this.physics.world.wrap(player1, 32);
 }
