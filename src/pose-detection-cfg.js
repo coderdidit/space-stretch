@@ -9,7 +9,7 @@ const BLAZEPOSE_CONFIG = {
 const MOVENET_CONFIG = {
    maxPoses: 1,
    type: 'lightning',
-   scoreThreshold: 0.3,
+   scoreThreshold: 0.2,
    customModel: '',
    enableTracking: false
  };
