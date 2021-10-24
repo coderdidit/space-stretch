@@ -1,5 +1,10 @@
 const play = "play"
 const move = "move"
+const left = "left"
+const right = "right"
+const up = "up"
+const jump = "jump"
+const down = "down"
 const stop = "stop"
 
 let prevState = stop
@@ -9,9 +14,54 @@ window.gameStateInit = () => {
     window.gameState = stop
 }
 
+window.gameLeftMove = () => {
+    return window.gameState == left
+}
+
+window.gameRightMove = () => {
+    return window.gameState == right
+}
+
+window.gameUpMove= () => {
+    return window.gameState == up
+}
+
+window.gameJumpMove= () => {
+    return window.gameState == jump
+}
+
+window.gameDownMove= () => {
+    return window.gameState == down
+}
+
 window.gameStateMove = () => {
     prevState = window.gameState
     window.gameState = move
+}
+
+window.gameStateMoveLeft = () => {
+    prevState = window.gameState
+    window.gameState = left
+}
+
+window.gameStateMoveRight = () => {
+    prevState = window.gameState
+    window.gameState = right
+}
+
+window.gameStateMoveUp = () => {
+    prevState = window.gameState
+    window.gameState = up
+}
+
+window.gameStateMoveDown = () => {
+    prevState = window.gameState
+    window.gameState = down
+}
+
+window.gameStateMoveJump = () => {
+    prevState = window.gameState
+    window.gameState = jump
 }
 
 window.gameStateStop = () => {
@@ -22,8 +72,13 @@ window.gameStateStop = () => {
     window.gameState = stop
 }
 
+window.gameInMove = () => {
+    return window.gameState == left || window.gameState == right
+}
+
 window.gameStateIsInMove = () => {
-    if (prevState == stop && window.gameState == move) {
+    const inMove = window.gameState == left || window.gameState == right
+    if (prevState == stop && inMove) {
         const now = Date.now()
         const timeDiff = (now - lastTimeChangeToStop) / 1000
         // if first time just increment
@@ -36,7 +91,7 @@ window.gameStateIsInMove = () => {
             document.getElementById('strech-count-in-session').innerHTML = window.strechesInSession
         }
     }
-    return window.gameState == move
+    return inMove
 }
 
 window.gameStateInit()
