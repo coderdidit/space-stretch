@@ -73,76 +73,85 @@ function create() {
     ballsGroup = this.physics.add.group()
     ballsGroup.enableBody = true;
 
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+    const asteroidsInGroupCount = 8
+    const asteroidScale = 1.5
 
-    //     ballGroups.set(tile, 0);
-    // }
+    // left
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    // // right
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+        ballGroups.set(tile, 0);
+    }
 
-    //     ballGroups.set(tile, 0);
-    // }
+    // right
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+        ballGroups.set(tile, 0);
+    }
 
-    //     ballGroups.set(tile, 0);
-    // }
+    // left
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+        ballGroups.set(tile, 0);
+    }
 
-    //     ballGroups.set(tile, 0);
-    // }
+    // left
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    // // right
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+        ballGroups.set(tile, 0);
+    }
 
-    //     ballGroups.set(tile, 0);
-    // }
+    // right
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    // // left
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
+        ballGroups.set(tile, 0);
+    }
 
-    //     ballGroups.set(tile, 0);
-    //     // ballGroups.setTint("0x33dd33")
-    // }
+    // left
+    for (let i = 0; i < asteroidsInGroupCount; i++) {
+        const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
+        tile.body.allowGravity = false
+        tile.setImmovable(true);
+        tile.setScale(asteroidScale)
 
-    let ballsGroup = this.physics.add.group({
-        key: 'asteroid',
-        quantity: 6,
-        collideWorldBounds: true,
-        immovable: true,
-        allowGravity: false,
-        setScale: { x: 5, y: 5}
-    })
+        ballGroups.set(tile, 0);
+        // ballGroups.setTint("0x33dd33")
+    }
+
+    // let ballsGroup = this.physics.add.group({
+    //     key: 'asteroid',
+    //     quantity: 6,
+    //     collideWorldBounds: true,
+    //     immovable: true,
+    //     allowGravity: false,
+    //     setScale: { x: 5, y: 5}
+    // })
 
     // ballsGroup.forEach(tile => {
     //     ballGroups.set(tile, 0)
     //     tile.setScale(2)
     // })
 
-    Phaser.Actions.RandomRectangle(ballsGroup.getChildren(), this.physics.world.bounds)
+   // Phaser.Actions.RandomRectangle(ballsGroup.getChildren(), this.physics.world.bounds)
 
 
     // for (let i = 0; i < 15; i++) {
@@ -164,16 +173,16 @@ function create() {
 
     const onCollide = (avatar, ballgr) => {
         if (avatar.body.onFloor()) {
-            // const thisBgLanded = ballGroups.get(ballgr);
-            // if (thisBgLanded == 0) {
+            const thisBgLanded = ballGroups.get(ballgr);
+            if (thisBgLanded == 0) {
             score += 1
-            // ballGroups.set(ballgr, 1)
+            ballGroups.set(ballgr, 1)
             ballgr.setTint("0x33dd33")
-            // ballgr.setImmovable(false)
+            ballgr.setImmovable(false)
 
-            // party.confetti(canvasParent)
+            party.confetti(canvasParent)
             scoreBoard.setText('Score: ' + score)
-            // }
+            }
         }
     }
 
