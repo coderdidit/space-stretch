@@ -26,10 +26,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let player1, ballsGroup, cursors;
-let ballGroups = new Map()
-let score = 0
-let scoreBoard
+let player1;
 
 function preload() {
     this.load.image('ball', ballPath);
@@ -45,7 +42,7 @@ function create() {
         'Move the paddle left, right, up, jump',
         {
             fontFamily: 'Monaco, Courier, monospace',
-            fontSize: '25px',
+            fontSize: '15px',
             fill: '#fff'
         }
     );
@@ -55,17 +52,15 @@ function create() {
         this.physics.world.bounds.height - 30, // y position
         'paddle', // key of image for the sprite
     );
-    
+
 }
 
 const paddleSpeed = 130
-// const ballSpeed = 400
 let lastMovetime = Date.now()
+
 function update(time, delta) {
     player1.body.setVelocityX(0);
     player1.body.setVelocityY(0);
-
-    // ball.body.setAllowGravity(false)
     const now = Date.now()
     const timeDiff = (now - lastMovetime) / 1000
     // deffer gravity from in move state
@@ -78,23 +73,24 @@ function update(time, delta) {
 }
 
 const handlePlayerMoves = (player, lastMovetime) => {
+    const now = Date.now()
     if (window.gameUpMove()) {
         player.body.setVelocityY((paddleSpeed + 40) * -1);
         // player.body.setAllowGravity(false)
         lastMovetime = now
-    } else 
-    if (window.gameJumpMove()) {
-        player.body.setVelocityY((paddleSpeed - 20) * -1);
-        // player.body.setAllowGravity(false)
-        lastMovetime = now
-    } else if (window.gameLeftMove()) {
-        player.body.setVelocityX((paddleSpeed) * -1);
-        // player.body.setAllowGravity(false)
-        lastMovetime = now
-        // player2.body.setVelocityX(paddleSpeed*-1);
-    } else if (window.gameRightMove()) {
-        player.body.setVelocityX(paddleSpeed);
-        // player.body.setAllowGravity(false)
-        lastMovetime = now
-    }
+    } else
+        if (window.gameJumpMove()) {
+            player.body.setVelocityY((paddleSpeed - 20) * -1);
+            // player.body.setAllowGravity(false)
+            lastMovetime = now
+        } else if (window.gameLeftMove()) {
+            player.body.setVelocityX((paddleSpeed) * -1);
+            // player.body.setAllowGravity(false)
+            lastMovetime = now
+            // player2.body.setVelocityX(paddleSpeed*-1);
+        } else if (window.gameRightMove()) {
+            player.body.setVelocityX(paddleSpeed);
+            // player.body.setAllowGravity(false)
+            lastMovetime = now
+        }
 }
