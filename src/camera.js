@@ -2,8 +2,8 @@ import * as posedetection from '@tensorflow-models/pose-detection';
 
 import * as params from './pose-detection-cfg';
 
-const DEFAULT_LINE_WIDTH = 2;
-const DEFAULT_RADIUS = 4;
+const DEFAULT_LINE_WIDTH = 3;
+const DEFAULT_RADIUS = 6;
 
 
 // #ffffff - White
@@ -33,6 +33,20 @@ const COLOR_PALETTE = [
 ];
 
 const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
+
+const allowedKeypoints = new Set([
+  "nose",
+  "left_eye",
+  "right_eye",
+  "left_ear",
+  "right_ear",
+  "left_shoulder",
+  "right_shoulder",
+  "left_elbow",
+  "right_elbow",
+  "left_wrist",
+  "right_wrist",
+])
 
 export class Camera {
   constructor() {
@@ -137,17 +151,23 @@ export class Camera {
     this.ctx.lineWidth = DEFAULT_LINE_WIDTH;
 
     for (const i of keypointInd.middle) {
-      this.drawKeypoint(keypoints[i]);
+      if (allowedKeypoints.has(keypoints[i].name)) {
+        this.drawKeypoint(keypoints[i]);
+      }
     }
 
     this.ctx.fillStyle = 'Green';
     for (const i of keypointInd.left) {
-      this.drawKeypoint(keypoints[i]);
+      if (allowedKeypoints.has(keypoints[i].name)) {
+        this.drawKeypoint(keypoints[i]);
+      }
     }
 
     this.ctx.fillStyle = 'Orange';
     for (const i of keypointInd.right) {
-      this.drawKeypoint(keypoints[i]);
+      if (allowedKeypoints.has(keypoints[i].name)) {
+        this.drawKeypoint(keypoints[i]);
+      }
     }
   }
 
@@ -181,13 +201,16 @@ export class Camera {
       const kp1 = keypoints[i];
       const kp2 = keypoints[j];
 
-      // If score is null, just show the keypoint.
-      const score1 = kp1.score != null ? kp1.score : 1;
-      const score2 = kp2.score != null ? kp2.score : 1;
-      const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
+      if (allowedKeypoints.has(kp1.name) && allowedKeypoints.has(kp1.name)) {
 
-      if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
-        this.drawLine(kp1, kp2)
+        // If score is null, just show the keypoint.
+        const score1 = kp1.score != null ? kp1.score : 1;
+        const score2 = kp2.score != null ? kp2.score : 1;
+        const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
+
+        if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
+          this.drawLine(kp1, kp2)
+        }
       }
     });
   }
