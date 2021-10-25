@@ -5,7 +5,7 @@ import '@tensorflow/tfjs-backend-webgl'
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as params from './pose-detection-cfg';
 import { Camera } from './camera';
-import { startPredictions } from './camera-predictions'
+import { startPredictions } from './predictions'
 
 let poseDetector;
 const setupTf = async () => {
