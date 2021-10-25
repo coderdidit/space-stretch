@@ -28,7 +28,7 @@ body h4, h3, h5, p {
 }
 
 #main-canvas canvas {
-  margin-top: 2%;
+  margin-top: 11vh;
   color: #F0E6FE;
   border: 3px solid hotpink;
 }
