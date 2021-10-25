@@ -1,10 +1,8 @@
 # Space Strech Mini Game 
 
-![gotchi-jam-devlog2](https://user-images.githubusercontent.com/86926500/132110272-a570f63c-3a8d-4161-b474-7e1e7043d8d2.gif)
+![Screenshot 2021-10-25 at 21 26 42](https://user-images.githubusercontent.com/86926500/138765826-9bfc77d9-376c-47fd-b6fd-2d76ed1b720e.png)
 
-[video demo](https://www.youtube.com/watch?v=WJXl-rI7pyA)
-
-[Paly it here (game is deployed)](https://coderdidit.com/aavegotchi-strech)
+[Paly it here (game is deployed)](https://coderdidit.com/space-stretch)
 
 The Goal of this project is to Gamify health
 
