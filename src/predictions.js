@@ -69,6 +69,14 @@ const handlePoseToGameEvents = (pose) => {
     }
 }
 
+var myWorker = new Worker('worker.js');
+
+myWorker.onmessage = function (e) {
+    result.textContent = e.data;
+    console.log('Message received from worker', result);
+}
+
+
 const predict = async (camera, poseDetector) => {
     // pose detection
     let poses;
@@ -80,10 +88,10 @@ const predict = async (camera, poseDetector) => {
         alert(error);
     }
     camera.drawCtx();
-
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
         const pose = poses[0]
+        myWorker.postMessage([pose[0], pose[1]]);
         const move = handlePoseToGameEvents(pose)
         handleMoveToEvent(move)
     }
