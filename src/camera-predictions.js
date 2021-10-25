@@ -91,4 +91,8 @@ const predict = async (camera, poseDetector) => {
     })
 }
 
-export { predict }
+const startPredictions = async (camera, poseDetector) => {
+    predict(camera, poseDetector)
+}
+
+export { startPredictions }
