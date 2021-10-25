@@ -54,10 +54,10 @@ function create() {
     this.add.text(
         5,
         5,
-        'Land on asteroids 🌝',
+        'Land on asteroids 🌕 to crush them 💥',
         {
             fontFamily: 'Monaco, Courier, monospace',
-            fontSize: '25px',
+            fontSize: '20px',
             fill: '#fff'
         }
     );
@@ -134,33 +134,7 @@ function create() {
         tile.setScale(asteroidScale)
 
         ballGroups.set(tile, 0);
-        // ballGroups.setTint("0x33dd33")
     }
-
-    // let ballsGroup = this.physics.add.group({
-    //     key: 'asteroid',
-    //     quantity: 6,
-    //     collideWorldBounds: true,
-    //     immovable: true,
-    //     allowGravity: false,
-    //     setScale: { x: 5, y: 5}
-    // })
-
-    // ballsGroup.forEach(tile => {
-    //     ballGroups.set(tile, 0)
-    //     tile.setScale(2)
-    // })
-
-   // Phaser.Actions.RandomRectangle(ballsGroup.getChildren(), this.physics.world.bounds)
-
-
-    // for (let i = 0; i < 15; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-
-    //     ballGroups.set(tile, 0);
-    // }
 
     player = this.physics.add.sprite(
         Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
