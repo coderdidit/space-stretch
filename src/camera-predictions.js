@@ -1,20 +1,10 @@
 import 'regenerator-runtime/runtime'
-import * as poseDetection from '@tensorflow-models/pose-detection';
-import * as tf from '@tensorflow/tfjs-core';
-import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-import '@tensorflow/tfjs-backend-webgl'
 import { getAngleBetween } from './angles';
-import { PoseDetectionCfg } from './pose-detection-cfg';
-import { Camera } from './camera';
 import * as params from './pose-detection-cfg';
 
-// TODO wasm is much faster investigate why
-// + vendor the dist
-const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-console.log('registering wasm backend', wasmPath)
-tfjsWasm.setWasmPaths(wasmPath);
 
 // TODO implement jump up move after 3 stop, up moves 
+let movedUp = false
 const handlePoseToGameEvents = (pose) => {
     const poseKeypoints = pose.keypoints
 
@@ -79,18 +69,7 @@ const handlePoseToGameEvents = (pose) => {
     }
 }
 
-let camera, poseDetector;
-let movedUp = false
-
-const renderPrediction = async () => {
-
-    if (camera.video.readyState < 2) {
-        await new Promise((resolve) => {
-            camera.video.onloadeddata = () => {
-                resolve(video);
-            };
-        });
-    }
+const predict = async (camera, poseDetector) => {
     // pose detection
     let poses;
     try {
@@ -107,31 +86,9 @@ const renderPrediction = async () => {
         const pose = poses[0]
         handlePoseToGameEvents(pose)
     }
-    requestAnimationFrame(renderPrediction)
+    requestAnimationFrame(() => {
+        predict(camera, poseDetector)
+    })
 }
 
-const startPredicting = async () => {
-    camera = await Camera.setupCamera();
-    console.log('setupCamera finished', camera)
-    await tf.setBackend(PoseDetectionCfg.backend)
-    console.log(`tfjs backend loaded ${PoseDetectionCfg.backend}`)
-
-    // hide main bg
-    const welcomBg = document.getElementById('welcom-bg')
-    welcomBg.style.display = 'none'
-
-    // unhide game and camera canvas
-    const mainCanvas = document.getElementById('main-canvas')
-    mainCanvas.style.display = 'block'
-    const videoOutput = document.getElementById('video-output')
-    videoOutput.style.display = 'block'
-
-    // setup AI
-    poseDetector = await poseDetection.createDetector(
-        params.PoseDetectionCfg.model,
-        params.PoseDetectionCfg.modelConfig);
-
-    renderPrediction(camera, poseDetector)
-}
-
-export {startPredicting}
+export { predict }
