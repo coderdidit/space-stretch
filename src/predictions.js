@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime'
 import { getAngleBetween } from './angles';
 import * as params from './pose-detection-cfg';
-
+import { left, right, up, stop, handleMoveToEvent } from './game-state'
 
 // TODO implement jump up move after 3 stop, up moves 
 let movedUp = false
@@ -56,16 +56,16 @@ const handlePoseToGameEvents = (pose) => {
     const moveSideActivationDist = 8
     if (noseVissible && lEVissible
         && noseToLeftEyeYdistance < moveSideActivationDist) {
-        window.gameStateMoveLeft()
+        return left;
     } else if (noseVissible && REVissible
         && noseToRightEyeYdistance < moveSideActivationDist) {
-        window.gameStateMoveRight()
+        return right;
     } else if (shouldersAndElbowsVissible && bothArmsUp) {
         movedUp = true
-        window.gameStateMoveUp()
+        return up;
     } else {
         movedUp = false
-        window.gameStateStop()
+        return stop;
     }
 }
 
@@ -84,7 +84,8 @@ const predict = async (camera, poseDetector) => {
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
         const pose = poses[0]
-        handlePoseToGameEvents(pose)
+        const move = handlePoseToGameEvents(pose)
+        handleMoveToEvent(move)
     }
     requestAnimationFrame(() => {
         predict(camera, poseDetector)
