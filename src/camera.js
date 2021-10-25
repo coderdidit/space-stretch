@@ -66,9 +66,9 @@ export class Camera {
       'audio': false,
       'video': {
         facingMode: 'user',
-        frameRate: {
-          ideal: targetFPS,
-        }
+        // frameRate: {
+        //   ideal: targetFPS,
+        // }
       }
     };
 
