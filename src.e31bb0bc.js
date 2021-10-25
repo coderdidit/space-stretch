@@ -94368,7 +94368,7 @@ var PoseDetectionCfg = {
   camera: {
     targetFPS: 60
   },
-  backend: 'wasm',
+  backend: 'webgl',
   modelConfig: modelToCfg.get(modelSet),
   model: modelSet
 };
@@ -94655,10 +94655,10 @@ var Camera = /*#__PURE__*/function () {
                 videoConfig = {
                   'audio': false,
                   'video': {
-                    facingMode: 'user',
-                    frameRate: {
-                      ideal: targetFPS
-                    }
+                    facingMode: 'user' // frameRate: {
+                    //   ideal: targetFPS,
+                    // }
+
                   }
                 };
                 _context.next = 6;
@@ -94936,7 +94936,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63592" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64118" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
