@@ -3,7 +3,6 @@ import ballPath from './vendor/assets/images/ball.png'
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidPath from './vendor/assets/images/asteroid3.png'
-import party from "party-js"
 
 
 const canvasParent = document.getElementById('main-canvas')
@@ -153,8 +152,6 @@ function create() {
                 ballGroups.set(ballgr, 1)
                 ballgr.setTint("0x33dd33")
                 ballgr.setImmovable(false)
-
-                party.confetti(canvasParent)
                 scoreBoard.setText('Score: ' + score)
             }
         }
