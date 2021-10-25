@@ -149,13 +149,13 @@ function create() {
         if (avatar.body.onFloor()) {
             const thisBgLanded = ballGroups.get(ballgr);
             if (thisBgLanded == 0) {
-            score += 1
-            ballGroups.set(ballgr, 1)
-            ballgr.setTint("0x33dd33")
-            ballgr.setImmovable(false)
+                score += 1
+                ballGroups.set(ballgr, 1)
+                ballgr.setTint("0x33dd33")
+                ballgr.setImmovable(false)
 
-            party.confetti(canvasParent)
-            scoreBoard.setText('Score: ' + score)
+                party.confetti(canvasParent)
+                scoreBoard.setText('Score: ' + score)
             }
         }
     }
