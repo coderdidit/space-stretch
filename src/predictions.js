@@ -72,11 +72,11 @@ const handlePoseToGameEvents = (pose) => {
 // var myWorker = new Worker('worker.js');
 // myWorker.postMessage(JSON.stringify(pose[0]));
 
-const predict = async (video, poseDetector) => {
+const predict = async (imgData, poseDetector) => {
     // pose detection
     let poses;
     try {
-        poses = await poseDetector.estimatePoses(video)
+        poses = await poseDetector.estimatePoses(imgData)
     } catch (error) {
         poseDetector.dispose();
         poseDetector = null;

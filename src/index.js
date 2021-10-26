@@ -54,7 +54,10 @@ const startGame = async () => {
 }
 
 const predictPose = async (camera, poseDetector) => {
-    const poses = await predict(camera.video, poseDetector)
+    const width = camera.canvas.width;
+    const height = camera.canvas.height;
+    const imgData = camera.ctx.getImageData(0, 0, width, height)
+    const poses = await predict(imgData, poseDetector)
     camera.drawCtx();
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
