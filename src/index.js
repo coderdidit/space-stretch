@@ -5,7 +5,9 @@ import '@tensorflow/tfjs-backend-webgl'
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as params from './pose-detection-cfg';
 import { Camera } from './camera';
-import { startPredictions } from './predictions'
+import { predict, handlePoseToGameEvents } from './predictions'
+import { handleMoveToEvent } from './game-state'
+
 
 let poseDetector;
 const setupTf = async () => {
@@ -48,7 +50,21 @@ const startGame = async () => {
     videoOutput.style.display = 'block'
 
     // ai
-    startPredictions(camera, poseDetector)
+    predictPose(camera, poseDetector)
+}
+
+const predictPose = async (camera, poseDetector) => {
+    const poses = await predict(camera.video, poseDetector)
+    camera.drawCtx();
+    if (poses && poses.length > 0) {
+        camera.drawResults(poses);
+        const pose = poses[0]
+        const move = handlePoseToGameEvents(pose)
+        handleMoveToEvent(move)
+    }
+    requestAnimationFrame(() => {
+        predictPose(camera, poseDetector)
+    })
 }
 
 const playBtn = document.getElementById('play-btn')

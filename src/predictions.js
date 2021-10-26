@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime'
 import { getAngleBetween } from './angles';
 import * as params from './pose-detection-cfg';
-import { left, right, up, stop, handleMoveToEvent } from './game-state'
+import { left, right, up, stop } from './game-state'
 
 // TODO implement jump up move after 3 stop, up moves 
 let movedUp = false
@@ -69,39 +69,20 @@ const handlePoseToGameEvents = (pose) => {
     }
 }
 
-var myWorker = new Worker('worker.js');
+// var myWorker = new Worker('worker.js');
+// myWorker.postMessage(JSON.stringify(pose[0]));
 
-myWorker.onmessage = function (e) {
-    result.textContent = e.data;
-    console.log('Message received from worker', result);
-}
-
-
-const predict = async (camera, poseDetector) => {
+const predict = async (video, poseDetector) => {
     // pose detection
     let poses;
     try {
-        poses = await poseDetector.estimatePoses(camera.video)
+        poses = await poseDetector.estimatePoses(video)
     } catch (error) {
         poseDetector.dispose();
         poseDetector = null;
         alert(error);
     }
-    camera.drawCtx();
-    if (poses && poses.length > 0) {
-        camera.drawResults(poses);
-        const pose = poses[0]
-        myWorker.postMessage([pose[0], pose[1]]);
-        const move = handlePoseToGameEvents(pose)
-        handleMoveToEvent(move)
-    }
-    requestAnimationFrame(() => {
-        predict(camera, poseDetector)
-    })
+    return poses
 }
 
-const startPredictions = async (camera, poseDetector) => {
-    predict(camera, poseDetector)
-}
-
-export { startPredictions }
+export { predict, handlePoseToGameEvents }
