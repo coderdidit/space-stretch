@@ -1,15 +1,14 @@
 import 'regenerator-runtime/runtime'
 import { Camera } from './camera';
-import { predict } from './predictions'
 import { handleMoveToEvent } from './game-state'
 import * as params from './pose-detection-cfg';
 import { getAngleBetween } from './angles';
 import { left, right, up, stop } from './game-state'
 
-
+let camera;
 const startGame = async () => {
     console.log('starting camera setup')
-    const camera = await Camera.setupCamera();
+    camera = await Camera.setupCamera();
     if (camera.video.readyState < 2) {
         await new Promise((resolve) => {
             camera.video.onloadeddata = () => {
@@ -30,7 +29,7 @@ const startGame = async () => {
     videoOutput.style.display = 'block'
 
     // ai
-    predictPose(camera)
+    predictPose()
 }
 
 // TODO implement jump up move after 3 stop, up moves 
@@ -99,11 +98,11 @@ const handlePoseToGameEvents = (pose) => {
     }
 }
 
-const predictPose = async (camera) => {
-    const width = camera.canvas.width;
-    const height = camera.canvas.height;
-    const imgData = camera.ctx.getImageData(0, 0, width, height)
-    const poses = await predict(imgData)
+const predictionsWorker = new Worker('predictions.js')
+
+predictionsWorker.onmessage = e => {
+    const poses = e.data
+
     camera.drawCtx();
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
@@ -111,8 +110,16 @@ const predictPose = async (camera) => {
         const move = handlePoseToGameEvents(pose)
         handleMoveToEvent(move)
     }
+}
+
+const predictPose = async () => {
+    const width = camera.canvas.width;
+    const height = camera.canvas.height;
+    const imgData = camera.ctx.getImageData(0, 0, width, height)
+    
+    predictionsWorker.postMessage(imgData, [imgData.data.buffer])    
     requestAnimationFrame(() => {
-        predictPose(camera)
+        predictPose()
     })
 }
 

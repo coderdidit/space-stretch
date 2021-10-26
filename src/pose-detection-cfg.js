@@ -29,7 +29,7 @@ export const modelToCfg = new Map([
 const modelSet = moveNetModel
 export const PoseDetectionCfg = {
   camera: {targetFPS: 60},
-  backend: 'wasm',
+  backend: 'cpu',
   modelConfig: modelToCfg.get(modelSet),
   model: modelSet
 }
