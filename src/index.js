@@ -1,31 +1,8 @@
 import 'regenerator-runtime/runtime'
-import * as tf from '@tensorflow/tfjs-core';
-import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
-import '@tensorflow/tfjs-backend-webgl'
-import * as poseDetection from '@tensorflow-models/pose-detection';
-import * as params from './pose-detection-cfg';
 import { Camera } from './camera';
 import { predict, handlePoseToGameEvents } from './predictions'
 import { handleMoveToEvent } from './game-state'
 
-
-let poseDetector;
-const setupTf = async () => {
-    // TODO wasm is much faster investigate why
-    // + vendor the dist
-    const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-    console.log('registering wasm backend', wasmPath)
-    tfjsWasm.setWasmPaths(wasmPath);
-
-    // setup AI
-    await tf.setBackend(params.PoseDetectionCfg.backend)
-    console.log(`tfjs backend loaded ${params.PoseDetectionCfg.backend}`)
-    poseDetector = await poseDetection.createDetector(
-        params.PoseDetectionCfg.model,
-        params.PoseDetectionCfg.modelConfig);
-}
-
-setupTf()
 
 const startGame = async () => {
     console.log('starting camera setup')
@@ -50,14 +27,14 @@ const startGame = async () => {
     videoOutput.style.display = 'block'
 
     // ai
-    predictPose(camera, poseDetector)
+    predictPose(camera)
 }
 
-const predictPose = async (camera, poseDetector) => {
+const predictPose = async (camera) => {
     const width = camera.canvas.width;
     const height = camera.canvas.height;
     const imgData = camera.ctx.getImageData(0, 0, width, height)
-    const poses = await predict(imgData, poseDetector)
+    const poses = await predict(imgData)
     camera.drawCtx();
     if (poses && poses.length > 0) {
         camera.drawResults(poses);
@@ -66,7 +43,7 @@ const predictPose = async (camera, poseDetector) => {
         handleMoveToEvent(move)
     }
     requestAnimationFrame(() => {
-        predictPose(camera, poseDetector)
+        predictPose(camera)
     })
 }
 
