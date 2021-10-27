@@ -40,12 +40,13 @@ const allowedKeypoints = new Set([
   "right_eye",
   "left_ear",
   "right_ear",
+
   "left_shoulder",
   "right_shoulder",
   "left_elbow",
   "right_elbow",
-  "left_wrist",
-  "right_wrist",
+  // "left_wrist",
+  // "right_wrist",
 ])
 
 export class Camera {
@@ -61,7 +62,7 @@ export class Camera {
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
 
-    const { targetFPS } = params.PoseDetectionCfg.camera;
+    // const { targetFPS } = params.PoseDetectionCfg.camera;
     const videoConfig = {
       'audio': false,
       'video': {

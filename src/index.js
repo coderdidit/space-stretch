@@ -99,10 +99,12 @@ const handlePoseToGameEvents = (pose) => {
     }
 }
 
-let fps = 30;
+// fps for predictions
+let fps = 5;
 let then = Date.now();
 let now, delta;
 let interval = 1000 / fps;
+let poses
 
 const predictPose = async (camera) => {
     requestAnimationFrame(() => {
@@ -117,8 +119,8 @@ const predictPose = async (camera) => {
         const width = camera.canvas.width;
         const height = camera.canvas.height;
         const imgData = camera.ctx.getImageData(0, 0, width, height)
-        const poses = await predict(imgData)
-        camera.drawCtx();
+        poses = await predict(imgData)
+        camera.drawCtx()
         if (poses && poses.length > 0) {
             camera.drawResults(poses);
             const pose = poses[0]
