@@ -109,18 +109,16 @@ export class Camera {
    * Draw the keypoints and skeleton on the video.
    * @param poses A list of poses to render.
    */
-  drawResults(poses) {
-    for (const pose of poses) {
-      this.drawResult(pose);
+  drawResults(keypoints) {
+    this.drawResult(keypoints);
 
-      // horizontal line for reference
-      const nose = pose.keypoints[0]
-      if (nose.score > scoreThreshold) {
-        // path from nose to right end
-        this.drawLine(nose, { x: 0, y: nose.y })
-        // path from nose to left end      
-        this.drawLine(nose, { x: this.video.videoWidth, y: nose.y })
-      }
+    // horizontal line for reference
+    const nose = keypoints[0]
+    if (nose.score > scoreThreshold) {
+      // path from nose to right end
+      this.drawLine(nose, { x: 0, y: nose.y })
+      // path from nose to left end      
+      this.drawLine(nose, { x: this.video.videoWidth, y: nose.y })
     }
   }
 
@@ -128,11 +126,9 @@ export class Camera {
    * Draw the keypoints and skeleton on the video.
    * @param pose A pose with keypoints to render.
    */
-  drawResult(pose) {
-    if (pose.keypoints != null) {
-      this.drawKeypoints(pose.keypoints);
-      this.drawSkeleton(pose.keypoints, pose.id);
-    }
+  drawResult(keypoints) {
+    this.drawKeypoints(keypoints);
+    this.drawSkeleton(keypoints);
   }
 
   /**
@@ -182,11 +178,9 @@ export class Camera {
    * Draw the skeleton of a body on the video.
    * @param keypoints A list of keypoints.
    */
-  drawSkeleton(keypoints, poseId) {
+  drawSkeleton(keypoints) {
     // Each poseId is mapped to a color in the color palette.
-    const color = params.PoseDetectionCfg.modelConfig.enableTracking && poseId != null ?
-      COLOR_PALETTE[poseId % 20] :
-      'White';
+    const color = 'White';
     this.ctx.fillStyle = color;
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;

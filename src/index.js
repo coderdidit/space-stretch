@@ -34,8 +34,8 @@ const startGame = async () => {
 
 // TODO implement jump up move after 3 stop, up moves 
 let movedUp = false
-const handlePoseToGameEvents = (pose) => {
-    const poseKeypoints = pose.keypoints
+const handlePoseToGameEvents = (keypoints) => {
+    const poseKeypoints = keypoints
 
     const nose = poseKeypoints[0]
 
@@ -101,23 +101,28 @@ const handlePoseToGameEvents = (pose) => {
 const predictionsWorker = new Worker('predictions.js')
 
 predictionsWorker.onmessage = e => {
-    const poses = e.data
+    const keypoints = e.data
 
-    camera.drawCtx();
-    if (poses && poses.length > 0) {
-        camera.drawResults(poses);
-        const pose = poses[0]
-        const move = handlePoseToGameEvents(pose)
-        handleMoveToEvent(move)
-    }
+    
+    camera.drawResults(keypoints);
+    const move = handlePoseToGameEvents(keypoints)
+    handleMoveToEvent(move)
 }
 
+const fpsWanted = 1
+
 const predictPose = async () => {
-    const width = camera.canvas.width;
-    const height = camera.canvas.height;
+    camera.drawCtx();
+    const width = camera.video.width;
+    const height = camera.video.height;
     const imgData = camera.ctx.getImageData(0, 0, width, height)
     
-    predictionsWorker.postMessage(imgData, [imgData.data.buffer])    
+    predictionsWorker.postMessage(imgData)
+    
+    // setInterval(() => {
+    //     predictPose()
+    // }, 1000/fpsWanted)
+
     requestAnimationFrame(() => {
         predictPose()
     })
