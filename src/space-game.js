@@ -5,7 +5,6 @@ import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidPath from './vendor/assets/images/asteroid3.png'
 
 
-const canvasParent = document.getElementById('main-canvas')
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 550
@@ -34,7 +33,7 @@ const game = new Phaser.Game(config);
 let player, ballsGroup;
 let ballGroups = new Map()
 let score = 0
-let scoreBoard
+let scoreBoard, cursors;
 
 function preload() {
     this.load.image('asteroid', asteroidPath);
@@ -44,6 +43,7 @@ function preload() {
 }
 
 function create() {
+    cursors = this.input.keyboard.createCursorKeys();
 
     // background
     this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
@@ -177,15 +177,15 @@ const handlePlayerMoves = (player, lastMovetime) => {
     if (timeDiff > 0.8) {
         player.body.setAllowGravity(true)
     }
-    if (window.gameLeftMove()) {
+    if (window.gameLeftMove() || cursors.left.isDown) {
         player.body.setVelocityX((playerSpeed) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now
-    } else if (window.gameRightMove()) {
+    } else if (window.gameRightMove() || cursors.right.isDown) {
         player.body.setVelocityX(playerSpeed);
-        player.body.setAllowGravity(false)
+        player.body.setAllowGravity(false)   
         lastMovetime = now
-    } else if (window.gameUpMove()) {
+    } else if (window.gameUpMove() || cursors.up.isDown) {
         player.body.setVelocityY((playerSpeed) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now

@@ -12,7 +12,7 @@ const BLAZEPOSE_CONFIG = {
 const MOVENET_CONFIG = {
    maxPoses: 1,
    modelType: posedetection.movenet.modelType.SINGLEPOSE_THUNDER,
-   scoreThreshold: 0.3,
+   scoreThreshold: 0.1,
    customModel: '',
    enableTracking: false
  };
@@ -29,7 +29,7 @@ export const modelToCfg = new Map([
 const modelSet = moveNetModel
 export const PoseDetectionCfg = {
   camera: {targetFPS: 60},
-  backend: 'wasm',
+  backend: 'webgl',
   modelConfig: modelToCfg.get(modelSet),
   model: modelSet
 }
