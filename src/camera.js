@@ -198,7 +198,7 @@ export class Camera {
       const kp1 = keypoints[i];
       const kp2 = keypoints[j];
 
-      if (allowedKeypoints.has(kp1.name) && allowedKeypoints.has(kp1.name)) {
+      if (allowedKeypoints.has(kp1.name) && allowedKeypoints.has(kp2.name)) {
 
         // If score is null, just show the keypoint.
         const score1 = kp1.score != null ? kp1.score : 1;
