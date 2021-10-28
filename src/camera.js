@@ -69,10 +69,9 @@ export class Camera {
         facingMode: 'user',
         with: 640,
         height: 480,
-        scale: 0.2,
         frameRate: {
           ideal: 5,
-        }
+        },
       }
     };
 
