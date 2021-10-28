@@ -14,7 +14,7 @@ const config = {
     width: 1024,
     height: 768,
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    // autoCenter: Phaser.Scale.CENTER_BOTH,
     scene: {
         preload,
         create,
@@ -144,7 +144,7 @@ function create() {
         'ship', // key of image for the sprite
     );
 
-    player.setScale(1.2)
+    player.setScale(1.4)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
