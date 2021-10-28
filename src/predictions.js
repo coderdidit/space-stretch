@@ -41,4 +41,10 @@ const predict = async (imgData) => {
     return poses
 }
 
-export { predict }
+onmessage = async (e) => {
+    const imgData = e.data.imgData
+    const poses = await predict(imgData)
+    postMessage({poses: poses})
+}
+
+// export { predict }

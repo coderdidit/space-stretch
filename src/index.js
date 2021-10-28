@@ -1,12 +1,12 @@
 import 'regenerator-runtime/runtime'
 import { Camera } from './camera';
-import { predict } from './predictions'
+// import { predict } from './predictions'
 import { handleMoveToEvent } from './game-state'
 import * as params from './pose-detection-cfg';
 import { getAngleBetween } from './angles';
 import { left, right, up, stop } from './game-state'
 
-
+let cameraRef
 const startGame = async () => {
     console.log('starting camera setup')
     const camera = await Camera.setupCamera();
@@ -31,6 +31,7 @@ const startGame = async () => {
 
     // ai
     console.log('starting pose prediction')
+    cameraRef = camera
     predictPose(camera)
 }
 
@@ -101,11 +102,25 @@ const handlePoseToGameEvents = (pose) => {
 }
 
 // fps for predictions
-let fps = 5;
+let fps = 3;
 let then = Date.now();
 let now, delta;
 let interval = 1000 / fps;
-let poses
+// let poses
+
+const predictionWorker = new Worker('predictions.js')
+predictionWorker.onmessage = e => {
+    console.log('recived from worker')
+    console.log(e)
+    const poses = e.data.poses
+    cameraRef.drawCtx()
+    if (poses && poses.length > 0) {
+        cameraRef.drawResults(poses);
+        const pose = poses[0]
+        const move = handlePoseToGameEvents(pose)
+        handleMoveToEvent(move)
+    }
+}
 
 const predictPose = async (camera) => {
     requestAnimationFrame(() => {
@@ -116,14 +131,12 @@ const predictPose = async (camera) => {
     delta = now - then;
     if (delta > interval) {
         then = now - (delta % interval);
-        poses = await predict(camera.video)
-        camera.drawCtx()
-        if (poses && poses.length > 0) {
-            camera.drawResults(poses);
-            const pose = poses[0]
-            const move = handlePoseToGameEvents(pose)
-            handleMoveToEvent(move)
-        }
+        const imgData = camera.ctx.getImageData(0, 0,
+            camera.video.width, camera.video.height)
+
+        predictionWorker.postMessage(
+            { imgData: imgData }, [imgData.data.buffer])
+        // poses = await predict(imgData)
     }
 }
 
