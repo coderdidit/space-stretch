@@ -67,8 +67,9 @@ export class Camera {
       'audio': false,
       'video': {
         facingMode: 'user',
-        with: 360,
-        height: 270,
+        with: 640,
+        height: 480,
+        scale: 0.2,
         frameRate: {
           ideal: 5,
         }

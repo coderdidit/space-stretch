@@ -13,12 +13,16 @@ const config = {
     parent: 'main-canvas',
     width: 1024,
     height: 768,
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
     scene: {
         preload,
         create,
         update,
     },
-    pixelArt: true,
+    render: {
+        pixelArt: true
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -182,7 +186,7 @@ const handlePlayerMoves = (player, lastMovetime) => {
         lastMovetime = now
     } else if (window.gameRightMove() || cursors.right.isDown) {
         player.body.setVelocityX(playerSpeed);
-        player.body.setAllowGravity(false)   
+        player.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameUpMove() || cursors.up.isDown) {
         player.body.setVelocityY((playerSpeed) * -1);
