@@ -1,6 +1,6 @@
 body {
   font-family: Orbitron !important;
-  background-color: #090215;
+  background-color: #262D83;
 }
 
 body h4, h3, h5, p {
@@ -13,7 +13,7 @@ body h4, h3, h5, p {
 }
 
 #welcom-bg {
-  background-color: #090215;
+  background-color: #262D83;
   width: 100vw;
   height: 100vh;
   position: absolute;
@@ -79,7 +79,7 @@ body h4, h3, h5, p {
 }
 
 #main-nav {
-  background-color: #240650;
+  background-color: #251F54;
   color: #F7F7F8;
 }
 
@@ -115,4 +115,8 @@ body h4, h3, h5, p {
 
 #title-move {
   color: chocolate;
+}
+
+.space-icons img {
+  width: 4vw;
 }
