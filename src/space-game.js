@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import ballPath from './vendor/assets/images/ball.png'
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidPath from './vendor/assets/images/asteroid3.png'
@@ -7,7 +6,7 @@ import asteroidPath from './vendor/assets/images/asteroid3.png'
 
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
-const gravity = 550
+const gravity = 750
 
 const config = {
     type: Phaser.AUTO,
@@ -39,7 +38,6 @@ let scoreBoard, cursors;
 function preload() {
     this.load.image('asteroid', asteroidPath);
     this.load.image('ship', shipPath);
-    this.load.image('ball', ballPath);
     this.load.image('bg', bgPath);
 }
 
