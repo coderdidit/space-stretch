@@ -12,8 +12,8 @@ const gravity = 550
 const config = {
     type: Phaser.AUTO,
     parent: 'main-canvas',
-    width: scaleDownSketch ? window.innerWidth / 1.2 : window.innerWidth,
-    height: scaleDownSketch ? window.innerHeight / 1.3 : window.innerHeight / 1.2,
+    width: 1024,
+    height: 768,
     scene: {
         preload,
         create,
@@ -73,12 +73,12 @@ function create() {
     ballsGroup = this.physics.add.group()
     ballsGroup.enableBody = true;
 
-    const asteroidsInGroupCount = 8
-    const asteroidScale = 1.5
+    const asteroidsInGroupCount = 7
+    const asteroidScale = 1
 
     // left
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 150, 600, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -88,7 +88,7 @@ function create() {
 
     // right
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 700, 550, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -118,7 +118,7 @@ function create() {
 
     // right
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 800, 400, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -128,7 +128,7 @@ function create() {
 
     // left
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 700, 100, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -142,7 +142,7 @@ function create() {
         'ship', // key of image for the sprite
     );
 
-    player.setScale(2.2)
+    player.setScale(1.2)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
