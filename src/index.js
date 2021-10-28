@@ -113,13 +113,9 @@ const predictPose = async (camera) => {
 
     now = Date.now();
     delta = now - then;
-
     if (delta > interval) {
         then = now - (delta % interval);
-        const width = camera.canvas.width;
-        const height = camera.canvas.height;
-        const imgData = camera.ctx.getImageData(0, 0, width, height)
-        poses = await predict(imgData)
+        poses = await predict(camera.video)
         camera.drawCtx()
         if (poses && poses.length > 0) {
             camera.drawResults(poses);
