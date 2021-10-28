@@ -28,7 +28,7 @@ export const modelToCfg = new Map([
 // pose detection model config
 const modelSet = moveNetModel
 export const PoseDetectionCfg = {
-  backend: 'webgl',
+  backend: 'wasm',
   modelConfig: modelToCfg.get(modelSet),
   model: modelSet
 }
