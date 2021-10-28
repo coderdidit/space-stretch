@@ -16,21 +16,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aavegotchi Strech MiniGame</title>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0WJ9TGJP3"></script>
-  <script>
-    const hashv = window.location.hash.substr(1)
-    if (hashv != "dev") {
-      window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
-      gtag('js', new Date());
-
-      gtag('config', 'G-N0WJ9TGJP3');
-    } else {
-      console.log('No GA')
-    }
-  </script>
+  <title>Space Strech</title>
 </head>
 
 <body>
@@ -43,18 +29,13 @@
           <span id="title-move">Into Space 🌙</span>
         </p>
       </div>
+      <div class="float-end btn-group-vertical">
+        <p>v0.2.2</p>
+      </div>
     </div>
   </nav>
   <div id="welcom-bg" class="container-fluid">
     <div id="welcom-bg-container" class="text-center">
-      <div id="previewed-gotchi-section" class="container-fluid">
-        <div class="row row-cols-2">
-          <div class="col">
-            <img id="aavegotchi-preview" />
-          </div>
-          <div class="col" id="gotchi-traits"></div>
-        </div>
-      </div>
       <button id="play-btn" type="button" class="btn btn-outline-danger btn-lg align-self-center">play 🎮</button>
       <br>
       <br>

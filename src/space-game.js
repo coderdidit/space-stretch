@@ -1,20 +1,18 @@
 import Phaser from "phaser";
-import ballPath from './vendor/assets/images/ball.png'
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidPath from './vendor/assets/images/asteroid3.png'
 
 
-const canvasParent = document.getElementById('main-canvas')
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
-const gravity = 550
+const gravity = 750
 
 const config = {
     type: Phaser.AUTO,
     parent: 'main-canvas',
-    width: scaleDownSketch ? window.innerWidth / 1.2 : window.innerWidth,
-    height: scaleDownSketch ? window.innerHeight / 1.3 : window.innerHeight / 1.2,
+    width: 1024,
+    height: 768,
     scene: {
         preload,
         create,
@@ -26,7 +24,8 @@ const config = {
         arcade: {
             gravity: { y: gravity },
         }
-    }
+    },
+    fps: 30
 };
 
 const game = new Phaser.Game(config);
@@ -34,16 +33,16 @@ const game = new Phaser.Game(config);
 let player, ballsGroup;
 let ballGroups = new Map()
 let score = 0
-let scoreBoard
+let scoreBoard, cursors;
 
 function preload() {
     this.load.image('asteroid', asteroidPath);
     this.load.image('ship', shipPath);
-    this.load.image('ball', ballPath);
     this.load.image('bg', bgPath);
 }
 
 function create() {
+    cursors = this.input.keyboard.createCursorKeys();
 
     // background
     this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
@@ -72,12 +71,12 @@ function create() {
     ballsGroup = this.physics.add.group()
     ballsGroup.enableBody = true;
 
-    const asteroidsInGroupCount = 8
-    const asteroidScale = 1.5
+    const asteroidsInGroupCount = 7
+    const asteroidScale = 1
 
     // left
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 150, 800, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 150, 600, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -87,7 +86,7 @@ function create() {
 
     // right
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 700, 650, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 700, 550, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -117,7 +116,7 @@ function create() {
 
     // right
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 900, 400, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 800, 400, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -127,7 +126,7 @@ function create() {
 
     // left
     for (let i = 0; i < asteroidsInGroupCount; i++) {
-        const tile = ballsGroup.create((i * 32) + 800, 100, 'asteroid')
+        const tile = ballsGroup.create((i * 32) + 700, 100, 'asteroid')
         tile.body.allowGravity = false
         tile.setImmovable(true);
         tile.setScale(asteroidScale)
@@ -141,7 +140,7 @@ function create() {
         'ship', // key of image for the sprite
     );
 
-    player.setScale(2.2)
+    player.setScale(1.2)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
@@ -177,15 +176,15 @@ const handlePlayerMoves = (player, lastMovetime) => {
     if (timeDiff > 0.8) {
         player.body.setAllowGravity(true)
     }
-    if (window.gameLeftMove()) {
+    if (window.gameLeftMove() || cursors.left.isDown) {
         player.body.setVelocityX((playerSpeed) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now
-    } else if (window.gameRightMove()) {
+    } else if (window.gameRightMove() || cursors.right.isDown) {
         player.body.setVelocityX(playerSpeed);
-        player.body.setAllowGravity(false)
+        player.body.setAllowGravity(false)   
         lastMovetime = now
-    } else if (window.gameUpMove()) {
+    } else if (window.gameUpMove() || cursors.up.isDown) {
         player.body.setVelocityY((playerSpeed) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now

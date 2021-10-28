@@ -7,12 +7,8 @@ body h4, h3, h5, p {
   color: whitesmoke;
 }
 
-.webcam-stream {
-  transform: scaleX(-1);
-}
-
 #video-output {
-  /* transform: scaleX(-1); */
+  transform: scaleX(-1);
   border: 3px solid rgb(114, 107, 107);
 }
 
@@ -24,11 +20,12 @@ body h4, h3, h5, p {
 }
 
 #welcom-bg-container {
+  margin-top: 20vh;
   color: whitesmoke;
 }
 
 #main-canvas canvas {
-  margin-top: 11vh;
+  margin-top: 10vh;
   color: #F0E6FE;
   border: 3px solid hotpink;
 }
@@ -36,34 +33,15 @@ body h4, h3, h5, p {
 @media all and (min-width: 450px) {
   :root {
     --webcam-width: 20vw;
-    --previewed-gotchi-p-top: 1.6%;
-    --previewed-gotchi-font-size: 100%;
-    --webcam-position-mr: auto;
-  }
-  #previewed-gotchi-section {
-    margin-bottom: 3vh;
   }
 }
 
 @media all and (max-width: 450px) {
-  :root {
-    --webcam-width: 38vw;
-    --previewed-gotchi-p-top: 0;
-    --previewed-gotchi-font-size: 80%;
-    --webcam-position-mr: 0;
-  }
   #welcom-bg {
     margin-top: 12vh;
   }
   #score-info {
     display: none;
-  }
-}
-
-@media all and (max-width: 375px) {
-  :root {
-    --previewed-gotchi-font-size: 70%;
-    --webcam-position-mr: 0;
   }
 }
 
@@ -73,7 +51,7 @@ body h4, h3, h5, p {
   left: 0;
   right: 0;
   margin-left: auto;
-  margin-right: var(--webcam-position-mr);
+  margin-right: auto;
   width: var(--webcam-width);
 }
 
@@ -128,51 +106,10 @@ body h4, h3, h5, p {
   color: #4c555e;
 }
 
-#aavegotchi-preview {
-  max-width: 180px;
-  max-height: 180px;
-}
-
-#gotchi-traits ul li {
-  border: none;
-  background-color: #090215;
-  color: #F0E6FE;
-  text-align: left;
-  word-spacing: 10px;
-}
-
-#gotchi-traits ul {
-  margin-top: 5%;
-}
-
-#previewed-gotchi-section {
-  width: 29%;
-}
-
-.stats-num {
-  color: yellowgreen;
-}
-
 #title-and {
   color: aqua;
 }
 
 #title-move {
   color: chocolate;
-}
-
-#score-info table {
-  width: 15%;
-}
-
-#previewed-gotchi-section {
-  padding: 0;
-  width: 100%;
-  height: auto;
-  font-size: var(--previewed-gotchi-font-size);
-}
-
-#previewed-gotchi-section .row .col:nth-child(1) {
-  text-align: right;
-  padding-top: var(--previewed-gotchi-p-top);
 }
