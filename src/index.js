@@ -30,6 +30,7 @@ const startGame = async () => {
     videoOutput.style.display = 'block'
 
     // ai
+    console.log('starting pose prediction')
     predictPose(camera)
 }
 
