@@ -13874,7 +13874,16 @@ function fromPixels_(pixels, numChannels = 3) {
     vals = pixels.data;
   } else if (isImage || isVideo || isImageBitmap) {
     if (fromPixels2DContext == null) {
-      fromPixels2DContext = document.createElement('canvas').getContext('2d');
+      if (typeof document === 'undefined') {
+        if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
+          // @ts-ignore
+          fromPixels2DContext = new OffscreenCanvas(1, 1).getContext('2d');
+        } else {
+          throw new Error('Cannot parse input in current context. Reason: OffscreenCanvas Context2D rendering is not supported.');
+        }
+      } else {
+        fromPixels2DContext = document.createElement('canvas').getContext('2d');
+      }
     }
 
     fromPixels2DContext.canvas.width = width;
@@ -14303,7 +14312,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 /**
  * @license
- * Copyright 2017 Google LLC. All Rights Reserved.
+ * Copyright 2021 Google LLC. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14317,6 +14326,9 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
  * limitations under the License.
  * =============================================================================
  */
+const NEW_AXIS = -2;
+const SHRINK_AXIS = -1;
+
 function assertParamsValid(input, begin, size) {
   const inputRank = input.shape.length;
   util.assert(inputRank === begin.length, () => `Error in slice${inputRank}D: Length of begin ${begin} must ` + `match the rank of the array (${inputRank}).`);
@@ -14639,69 +14651,294 @@ function parseSliceParams(x, begin, size) {
     }
   });
   return [begin_, size_];
-}
+} // Convert the slicing specification from a sparse representation to a dense
+// representation. This means that all ellipses and newaxis are expanded out.
+
 
 function sliceInfo(xShape, begin, end, strides, beginMask, endMask, ellipsisMask, newAxisMask, shrinkAxisMask) {
-  // make a copy because it may be modified further down.
-  let $begin = begin.slice();
-  let $end = end.slice();
-  let $strides = strides;
+  let stridesNonNull;
 
   if (strides == null) {
-    $strides = new Array($begin.length);
-  }
+    stridesNonNull = new Array(begin.length);
+    stridesNonNull.fill(1);
+  } else {
+    stridesNonNull = strides;
+  } // Only one non-zero bit is allowed in ellipsisMask, which means ellipsisMask
+  // is a power of 2. Use bit compares to ensure ellipsisMask is 0 or a power
+  // of 2. When i is a power of 2, i & (i - 1) is always 0.
+  // Also ref:
+  // https://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
 
-  const ellipsisAxes = maskToAxes(ellipsisMask);
 
-  if (ellipsisAxes.length > 1) {
+  if (ellipsisMask != null && (ellipsisMask & ellipsisMask - 1) !== 0) {
     throw new Error('Multiple ellipses in slice is not allowed.');
-  }
+  } // Step 1: Account for ellipsis and new axis.
+  // Check for ellipsis and count how many non-newaxis there are after.
 
-  if (ellipsisMask !== 0 && newAxisMask !== 0) {
-    throw new Error('Using both ellipsisMask and newAxisMask is not yet supported.');
-  }
 
-  if (ellipsisMask !== 0 && shrinkAxisMask !== 0) {
-    throw new Error('Using both ellipsisMask and shrinkAxisMask is not yet supported.');
-  }
-
-  const numInterpolatedAxes = xShape.length - $begin.length; // Expand the dims of x based on the newAxisMask.
-
-  const expandAxes = maskToAxes(newAxisMask);
-  const newShape = xShape.slice();
-  expandAxes.forEach(axis => {
-    $begin[axis] = 0;
-    $end[axis] = 1;
-    newShape.splice(axis, 0, 1);
-  });
-  const {
-    begin: normalizedBegin,
-    end: normalizedEnd,
-    strides: normalizedStrides
-  } = getNormalizedAxes(newShape, ellipsisAxes, numInterpolatedAxes, $begin, $end, $strides, beginMask, endMask, ellipsisMask);
-  $begin = normalizedBegin;
-  $end = normalizedEnd;
-  $strides = normalizedStrides;
-  const shrinkAxes = maskToAxes(shrinkAxisMask); // Adjust the ends based on the shrink mask.
-
-  shrinkAxes.forEach(axis => {
-    $end[axis] = $begin[axis] + 1;
-    $strides[axis] = 1;
-  }); // Figure out the output shape.
-
-  const size = computeOutShape($begin, $end, $strides); // Remove the axes based on shrinkMask.
-
-  const outShape = size.filter((_, axis) => shrinkAxes.indexOf(axis) === -1);
-  const nonStrided = $strides.every(v => v === 1);
-  return {
-    nonStrided,
-    $begin,
-    $end,
-    $strides,
-    size,
-    newShape,
-    outShape
+  let ellipsisSeen = false;
+  const sparseSpec = {
+    dims: stridesNonNull.length,
+    numAddAxisAfterEllipsis: 0,
+    begin: begin.slice(),
+    end: end.slice(),
+    strides: stridesNonNull.slice(),
+    beginMask,
+    endMask,
+    ellipsisMask,
+    newAxisMask,
+    shrinkAxisMask
   };
+
+  for (let i = 0; i < sparseSpec.dims; i++) {
+    if (ellipsisSeen && (1 << i & newAxisMask) !== 0) {
+      sparseSpec.numAddAxisAfterEllipsis++;
+    }
+
+    if (1 << i & ellipsisMask) {
+      ellipsisSeen = true;
+    }
+  } // If no ellipsis insert one at the end.
+
+
+  if (!ellipsisSeen) {
+    sparseSpec.ellipsisMask |= 1 << sparseSpec.dims;
+    sparseSpec.dims++; // this effects loop iteration below
+  } // Step 2: Make a sparse spec into a full index spec.
+  //
+  // The sparse spec deos not correspond to the number of dimensions.
+  // Make a dense spec that cooresponds to the number of dimensions.
+  //
+  // For example suppose foo[...,3:] on foo.shape = [2, 2, 3] then we need to
+  // produce the missing beginMask for the first two dimensions i.e. from
+  // beginMaskSpec = 0, endMaskSpec = 2, we achieve beginMask = 6 (110),
+  // endMask = 7 (111).
+
+
+  const denseSpec = {
+    dims: xShape.length,
+    beginMask: 0,
+    endMask: 0,
+    beginValid: false,
+    endValid: false
+  };
+  buildDenseSpec(sparseSpec, denseSpec); // Step 3: Make implicit ranges (non-zero beginMasks and endMasks) explicit
+  // and bounds check.
+
+  let isIdentity = true;
+  let sliceDim0 = true;
+  let isSimpleSlice = true;
+  const processingShape = [];
+  const finalShape = [];
+
+  for (let i = 0; i < xShape.length; ++i) {
+    if (denseSpec.strides[i] === 0) {
+      throw Error(`strides[${i}] must be non-zero`);
+    }
+
+    const shrinkI = !!(denseSpec.shrinkAxisMask & 1 << i);
+    const dimI = xShape[i];
+
+    if (dimI === -1) {
+      processingShape.push(shrinkI ? 1 : -1);
+      continue;
+    }
+
+    const masks = [denseSpec.beginMask & 1 << i, denseSpec.endMask & 1 << i];
+    const validRange = [denseSpec.strides[i] > 0 ? 0 : -1, denseSpec.strides[i] > 0 ? dimI : dimI - 1];
+
+    if (shrinkI && denseSpec.strides[i] <= 0) {
+      throw Error('only stride 1 allowed on non-range indexing.');
+    }
+
+    isSimpleSlice = isSimpleSlice && denseSpec.strides[i] === 1;
+    const beginAndEndMasked = !!(denseSpec.beginMask & 1 << i && denseSpec.endMask & 1 << i);
+
+    if (denseSpec.beginValid && denseSpec.endValid) {
+      if (shrinkI) {
+        // If we are shrinking, the end index is now possibly incorrect. In
+        // particular foo[-1] produces sparseBegin = -1, sparseEnd = 0.
+        // and canonical puts these to n-1 and 0, which implies a degenerate
+        // interval. Fortunately, it is now safe to re-create end as begin + 1.
+        const xFwd = denseSpec.begin[i] < 0 ? dimI + denseSpec.begin[i] : denseSpec.begin[i];
+        denseSpec.begin[i] = xFwd;
+        denseSpec.end[i] = denseSpec.begin[i] + 1;
+
+        if (xFwd < 0 || xFwd >= dimI) {
+          throw Error(`slice index ${denseSpec.begin[i]} of dimension ${i} out of bounds.`);
+        }
+      } else {
+        denseSpec.begin[i] = canonical(denseSpec.begin[i], 0, denseSpec.strides[i], dimI, masks, validRange);
+        denseSpec.end[i] = canonical(denseSpec.end[i], 1, denseSpec.strides[i], dimI, masks, validRange);
+      } // Update optimization values
+
+
+      const takeAllInDimension = denseSpec.strides[i] === 1 && denseSpec.begin[i] === 0 && denseSpec.end[i] === dimI;
+      isIdentity = isIdentity && takeAllInDimension;
+      sliceDim0 = sliceDim0 && (i === 0 && denseSpec.strides[i] === 1 || takeAllInDimension);
+    } else {
+      isIdentity = isIdentity && denseSpec.strides[i] === 1 && beginAndEndMasked;
+      sliceDim0 = sliceDim0 && (i === 0 && denseSpec.strides[i] === 1 || beginAndEndMasked);
+    } // Compute the processing shape (the intermediate Eigen will produce)
+
+
+    let intervalLength;
+    let knownInterval = false;
+
+    if (denseSpec.beginValid && denseSpec.endValid) {
+      intervalLength = denseSpec.end[i] - denseSpec.begin[i];
+      knownInterval = true;
+    } else if (shrinkI) {
+      // The dimension is still known as 1 for the processingShape, but will be
+      // discarded for the final shape.
+      intervalLength = 1;
+      knownInterval = true;
+    } else if (beginAndEndMasked) {
+      // Even if we don't have values for begin or end, we do know that this
+      // dimension covers the whole interval. If we have shape information for
+      // this dimension, that tells us the interval length.
+      if (dimI >= 0) {
+        if (denseSpec.strides[i] < 0) {
+          intervalLength = -dimI;
+        } else {
+          intervalLength = dimI;
+        }
+
+        knownInterval = true;
+      }
+    }
+
+    if (knownInterval) {
+      let sizeI; // Hold zero if the interval is degenerate, otherwise account for
+      // remainder
+
+      if (intervalLength === 0 || intervalLength < 0 !== denseSpec.strides[i] < 0) {
+        sizeI = 0;
+      } else {
+        sizeI = Math.trunc(intervalLength / denseSpec.strides[i]) + (intervalLength % denseSpec.strides[i] !== 0 ? 1 : 0);
+      }
+
+      processingShape.push(sizeI);
+    } else {
+      processingShape.push(-1);
+    }
+  } // Step 4: Compute the final shape
+  //
+  // newAxis will increase dimension by 1 (with a one-size dimension)
+  // slices like foo[3, ...] will reduce dimension by 1.
+  // This cannot be done earlier, because it depends on Step 3.
+
+
+  for (let denseDim = 0; denseDim < denseSpec.finalShapeGatherIndices.length; ++denseDim) {
+    const gatherIndex = denseSpec.finalShapeGatherIndices[denseDim];
+
+    if (gatherIndex >= 0) {
+      finalShape.push(processingShape[gatherIndex]);
+    } else if (gatherIndex === NEW_AXIS) {
+      finalShape.push(1);
+    }
+  }
+
+  const finalShapeSparse = finalShape.filter((dim, i) => denseSpec.finalShapeGatherIndices[i] !== NEW_AXIS);
+  return {
+    finalShapeSparse,
+    finalShape,
+    isIdentity,
+    sliceDim0,
+    isSimpleSlice,
+    begin: denseSpec.begin,
+    end: denseSpec.end,
+    strides: denseSpec.strides
+  };
+}
+
+function buildDenseSpec(sparse, dense) {
+  dense.beginMask = 0;
+  dense.endMask = 0;
+  dense.shrinkAxisMask = 0;
+  let fullIndex = 0;
+  dense.beginValid = sparse.begin != null;
+  dense.endValid = sparse.end != null;
+  dense.begin = new Array(dense.dims);
+  dense.end = new Array(dense.dims);
+  dense.strides = new Array(dense.dims);
+  dense.finalShapeGatherIndices = [];
+  dense.finalShapeGatherIndicesSparse = [];
+  dense.inputShapeGatherIndicesSparse = new Array(dense.dims);
+
+  for (let i = 0; i < sparse.dims; i++) {
+    if (1 << i & sparse.ellipsisMask) {
+      // Only the bit that has ellipsis will fall in this condition.
+      // Expand the ellipsis into the appropriate indices
+      // Note: this only works because we guaranteed one ellipsis.
+      const nextIndex = Math.min(dense.dims - (sparse.dims - i) + 1 + sparse.numAddAxisAfterEllipsis, dense.dims);
+
+      for (; fullIndex < nextIndex; fullIndex++) {
+        // newAxis aren't real axis so you have to skip.
+        dense.begin[fullIndex] = 0;
+        dense.end[fullIndex] = 0;
+        dense.strides[fullIndex] = 1;
+        dense.beginMask |= 1 << fullIndex;
+        dense.endMask |= 1 << fullIndex;
+        dense.finalShapeGatherIndices.push(fullIndex);
+        dense.finalShapeGatherIndicesSparse.push(-1);
+        dense.inputShapeGatherIndicesSparse[fullIndex] = i;
+      }
+    } else if (1 << i & sparse.newAxisMask) {
+      // Only the bit that has newAxis will fall in this condition.
+      dense.finalShapeGatherIndices.push(NEW_AXIS);
+      dense.finalShapeGatherIndicesSparse.push(-1);
+    } else {
+      if (fullIndex === dense.begin.length) {
+        throw Error(`Index out of range using input dim ${fullIndex}; input ` + `has only ${dense.dims} dims, ${dense.begin.length}.`);
+      } // Gather slicing spec into appropriate index.
+
+
+      if (sparse.begin != null) {
+        dense.begin[fullIndex] = sparse.begin[i];
+      }
+
+      if (sparse.end != null) {
+        dense.end[fullIndex] = sparse.end[i];
+      }
+
+      dense.strides[fullIndex] = sparse.strides[i];
+
+      if (sparse.beginMask & 1 << i) {
+        dense.beginMask |= 1 << fullIndex;
+      }
+
+      if (sparse.endMask & 1 << i) {
+        dense.endMask |= 1 << fullIndex;
+      } // If shrink, record where to get the dimensionality from (i.e. newAxis)
+      // creates a fake 1 size dimension. Also remember shrink axis (now in
+      // dense form) so we can ignore dense.end below.
+
+
+      if (sparse.shrinkAxisMask & 1 << i) {
+        dense.finalShapeGatherIndices.push(SHRINK_AXIS);
+        dense.finalShapeGatherIndicesSparse.push(-1);
+        dense.shrinkAxisMask |= 1 << fullIndex;
+      } else {
+        dense.finalShapeGatherIndices.push(fullIndex); // Remember that where in the sparse shape the dense dim comes from.
+
+        dense.finalShapeGatherIndicesSparse.push(i);
+      }
+
+      dense.inputShapeGatherIndicesSparse[fullIndex] = i;
+      fullIndex++;
+    }
+  }
+}
+
+function canonical(x, c, strideI, dimI, masks, validRange) {
+  if (masks[c]) {
+    return strideI > 0 ? validRange[c] : validRange[c + 1 & 1];
+  } else {
+    const xFwd = x < 0 ? dimI + x : x; // make negative indices positive
+
+    return xFwd < validRange[0] ? validRange[0] : xFwd > validRange[1] ? validRange[1] : xFwd;
+  }
 }
 },{"../util":"../node_modules/@tensorflow/tfjs-core/dist/util.js"}],"../node_modules/@tensorflow/tfjs-core/dist/serialization.js":[function(require,module,exports) {
 "use strict";
@@ -15016,7 +15253,7 @@ exports.version = void 0;
 
 /** @license See the LICENSE file. */
 // This code is auto-generated, do not modify this file!
-const version = '3.10.0';
+const version = '3.11.0';
 exports.version = version;
 },{}],"../node_modules/@tensorflow/tfjs-core/dist/globals.js":[function(require,module,exports) {
 "use strict";
@@ -41349,6 +41586,7 @@ var _exportNames = {
   test_util: true,
   util: true,
   version_core: true,
+  OptimizerConstructors: true,
   AdadeltaOptimizer: true,
   AdagradOptimizer: true,
   AdamOptimizer: true,
@@ -41384,6 +41622,12 @@ Object.defineProperty(exports, "version_core", {
   enumerable: true,
   get: function () {
     return _version.version;
+  }
+});
+Object.defineProperty(exports, "OptimizerConstructors", {
+  enumerable: true,
+  get: function () {
+    return _optimizer_constructors.OptimizerConstructors;
   }
 });
 Object.defineProperty(exports, "AdadeltaOptimizer", {
@@ -41592,6 +41836,8 @@ exports.util = util;
 
 var _version = require("./version");
 
+var _optimizer_constructors = require("./optimizers/optimizer_constructors");
+
 var _adadelta_optimizer = require("./optimizers/adadelta_optimizer");
 
 var _adagrad_optimizer = require("./optimizers/adagrad_optimizer");
@@ -41707,7 +41953,7 @@ Object.keys(_kernel_names).forEach(function (key) {
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-},{"./io/io":"../node_modules/@tensorflow/tfjs-core/dist/io/io.js","./math":"../node_modules/@tensorflow/tfjs-core/dist/math.js","./ops/browser":"../node_modules/@tensorflow/tfjs-core/dist/ops/browser.js","./ops/gather_nd_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/gather_nd_util.js","./ops/scatter_nd_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/scatter_nd_util.js","./ops/slice_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/slice_util.js","./serialization":"../node_modules/@tensorflow/tfjs-core/dist/serialization.js","./tensor_util":"../node_modules/@tensorflow/tfjs-core/dist/tensor_util.js","./test_util":"../node_modules/@tensorflow/tfjs-core/dist/test_util.js","./util":"../node_modules/@tensorflow/tfjs-core/dist/util.js","./version":"../node_modules/@tensorflow/tfjs-core/dist/version.js","./optimizers/adadelta_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adadelta_optimizer.js","./optimizers/adagrad_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adagrad_optimizer.js","./optimizers/adam_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adam_optimizer.js","./optimizers/adamax_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adamax_optimizer.js","./optimizers/momentum_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/momentum_optimizer.js","./optimizers/optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/optimizer.js","./optimizers/rmsprop_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/rmsprop_optimizer.js","./optimizers/sgd_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/sgd_optimizer.js","./tensor":"../node_modules/@tensorflow/tfjs-core/dist/tensor.js","./types":"../node_modules/@tensorflow/tfjs-core/dist/types.js","./ops/ops":"../node_modules/@tensorflow/tfjs-core/dist/ops/ops.js","./ops/loss_ops_utils":"../node_modules/@tensorflow/tfjs-core/dist/ops/loss_ops_utils.js","./train":"../node_modules/@tensorflow/tfjs-core/dist/train.js","./globals":"../node_modules/@tensorflow/tfjs-core/dist/globals.js","./kernel_registry":"../node_modules/@tensorflow/tfjs-core/dist/kernel_registry.js","./gradients":"../node_modules/@tensorflow/tfjs-core/dist/gradients.js","./environment":"../node_modules/@tensorflow/tfjs-core/dist/environment.js","./browser_util":"../node_modules/@tensorflow/tfjs-core/dist/browser_util.js","./backends/backend_util":"../node_modules/@tensorflow/tfjs-core/dist/backends/backend_util.js","./device_util":"../node_modules/@tensorflow/tfjs-core/dist/device_util.js","./backends/kernel_impls":"../node_modules/@tensorflow/tfjs-core/dist/backends/kernel_impls.js","./backends/backend":"../node_modules/@tensorflow/tfjs-core/dist/backends/backend.js","./kernel_names":"../node_modules/@tensorflow/tfjs-core/dist/kernel_names.js"}],"../node_modules/@tensorflow/tfjs-core/dist/index.js":[function(require,module,exports) {
+},{"./io/io":"../node_modules/@tensorflow/tfjs-core/dist/io/io.js","./math":"../node_modules/@tensorflow/tfjs-core/dist/math.js","./ops/browser":"../node_modules/@tensorflow/tfjs-core/dist/ops/browser.js","./ops/gather_nd_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/gather_nd_util.js","./ops/scatter_nd_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/scatter_nd_util.js","./ops/slice_util":"../node_modules/@tensorflow/tfjs-core/dist/ops/slice_util.js","./serialization":"../node_modules/@tensorflow/tfjs-core/dist/serialization.js","./tensor_util":"../node_modules/@tensorflow/tfjs-core/dist/tensor_util.js","./test_util":"../node_modules/@tensorflow/tfjs-core/dist/test_util.js","./util":"../node_modules/@tensorflow/tfjs-core/dist/util.js","./version":"../node_modules/@tensorflow/tfjs-core/dist/version.js","./optimizers/optimizer_constructors":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/optimizer_constructors.js","./optimizers/adadelta_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adadelta_optimizer.js","./optimizers/adagrad_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adagrad_optimizer.js","./optimizers/adam_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adam_optimizer.js","./optimizers/adamax_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/adamax_optimizer.js","./optimizers/momentum_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/momentum_optimizer.js","./optimizers/optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/optimizer.js","./optimizers/rmsprop_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/rmsprop_optimizer.js","./optimizers/sgd_optimizer":"../node_modules/@tensorflow/tfjs-core/dist/optimizers/sgd_optimizer.js","./tensor":"../node_modules/@tensorflow/tfjs-core/dist/tensor.js","./types":"../node_modules/@tensorflow/tfjs-core/dist/types.js","./ops/ops":"../node_modules/@tensorflow/tfjs-core/dist/ops/ops.js","./ops/loss_ops_utils":"../node_modules/@tensorflow/tfjs-core/dist/ops/loss_ops_utils.js","./train":"../node_modules/@tensorflow/tfjs-core/dist/train.js","./globals":"../node_modules/@tensorflow/tfjs-core/dist/globals.js","./kernel_registry":"../node_modules/@tensorflow/tfjs-core/dist/kernel_registry.js","./gradients":"../node_modules/@tensorflow/tfjs-core/dist/gradients.js","./environment":"../node_modules/@tensorflow/tfjs-core/dist/environment.js","./browser_util":"../node_modules/@tensorflow/tfjs-core/dist/browser_util.js","./backends/backend_util":"../node_modules/@tensorflow/tfjs-core/dist/backends/backend_util.js","./device_util":"../node_modules/@tensorflow/tfjs-core/dist/device_util.js","./backends/kernel_impls":"../node_modules/@tensorflow/tfjs-core/dist/backends/kernel_impls.js","./backends/backend":"../node_modules/@tensorflow/tfjs-core/dist/backends/backend.js","./kernel_names":"../node_modules/@tensorflow/tfjs-core/dist/kernel_names.js"}],"../node_modules/@tensorflow/tfjs-core/dist/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -52600,7 +52846,7 @@ exports.version = void 0;
 
 /** @license See the LICENSE file. */
 // This code is auto-generated, do not modify this file!
-const version = '3.10.0';
+const version = '3.11.0';
 exports.version = version;
 },{}],"../node_modules/@tensorflow/tfjs-converter/dist/index.js":[function(require,module,exports) {
 "use strict";
@@ -55332,8 +55578,8 @@ var Camera = /*#__PURE__*/function () {
                   'audio': false,
                   'video': {
                     facingMode: 'user',
-                    with: 360,
-                    height: 270,
+                    with: 640,
+                    height: 480,
                     frameRate: {
                       ideal: 5
                     }
@@ -65471,7 +65717,7 @@ var _Slice = require("./Slice");
 
 /**
  * @license
- * Copyright 2020 Google LLC. All Rights Reserved.
+ * Copyright 2021 Google LLC. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65502,17 +65748,10 @@ function stridedSlice(args) {
   const {
     x
   } = inputs;
-  let {
+  const {
     begin,
     end,
-    strides
-  } = attrs;
-
-  if (strides == null) {
-    strides = new Array(begin.length);
-  }
-
-  const {
+    strides,
     beginMask,
     endMask,
     ellipsisMask,
@@ -65520,115 +65759,81 @@ function stridedSlice(args) {
     shrinkAxisMask
   } = attrs;
 
-  const ellipsisAxes = _tfjsCore.backend_util.slice_util.maskToAxes(ellipsisMask);
-
-  if (ellipsisAxes.length > 1) {
-    throw new Error('Multiple ellipses in slice is not allowed.');
-  }
-
-  if (ellipsisMask !== 0 && newAxisMask !== 0) {
-    throw new Error('Using both ellipsisMask and newAxisMask is not yet supported.');
-  }
-
-  if (ellipsisMask !== 0 && shrinkAxisMask !== 0) {
-    throw new Error('Using both ellipsisMask and shrinkAxisMask is not yet supported.');
-  }
-
-  const numInterpolatedAxes = x.shape.length - begin.length; // Expand the dims of x based on the newAxisMask.
-
-  const expandAxes = _tfjsCore.backend_util.slice_util.maskToAxes(newAxisMask);
-
-  const newShape = x.shape.slice();
-  expandAxes.forEach(axis => {
-    begin[axis] = 0;
-    end[axis] = 1;
-    newShape.splice(axis, 0, 1);
-  });
-  const xReshaped = (0, _Reshape.reshape)({
-    inputs: {
-      x
-    },
-    attrs: {
-      shape: newShape
-    },
-    backend
-  });
-
   const {
-    begin: normalizedBegin,
-    end: normalizedEnd,
-    strides: normalizedStrides
-  } = _tfjsCore.backend_util.slice_util.getNormalizedAxes(xReshaped.shape, ellipsisAxes, numInterpolatedAxes, begin, end, strides, beginMask, endMask, ellipsisMask);
+    finalShapeSparse,
+    finalShape,
+    isIdentity,
+    sliceDim0,
+    isSimpleSlice,
+    begin: $begin,
+    end: $end,
+    strides: $strides
+  } = _tfjsCore.slice_util.sliceInfo(x.shape, begin, end, strides, beginMask, endMask, ellipsisMask, newAxisMask, shrinkAxisMask);
 
-  begin = normalizedBegin;
-  end = normalizedEnd;
-  strides = normalizedStrides;
+  let result;
 
-  const shrinkAxes = _tfjsCore.backend_util.slice_util.maskToAxes(shrinkAxisMask); // Adjust the ends based on the shrink mask.
-
-
-  shrinkAxes.forEach(axis => {
-    end[axis] = begin[axis] + 1;
-    strides[axis] = 1;
-  }); // Figure out the output shape.
-
-  const size = _tfjsCore.backend_util.slice_util.computeOutShape(begin, end, strides); // Remove the axes based on shrinkMask.
-
-
-  const outShape = size.filter((_, axis) => shrinkAxes.indexOf(axis) === -1);
-  const nonStrided = strides.every(v => v === 1);
-
-  if (nonStrided) {
-    const xSliced = (0, _Slice.slice)({
+  if (isIdentity) {
+    // Optimization #1, slice is a no-op plus reshape
+    result = (0, _Reshape.reshape)({
       inputs: {
-        x: xReshaped
+        x
       },
+      backend,
       attrs: {
-        begin,
+        shape: finalShape
+      }
+    });
+  } else if (sliceDim0 || isSimpleSlice) {
+    // Optimization #2, slice is memory contiguous (only occurs in dim 0)
+    _tfjsCore.util.assert(x.shape.length >= 1, () => `Input must have rank at least 1, got: ${x.shape.length}`);
+
+    const size = _tfjsCore.slice_util.computeOutShape($begin, $end, $strides); // To tolerate begin[0] > end[0] (a 0-output slice), we min(begin, end).
+
+
+    const sliced = (0, _Slice.slice)({
+      inputs: {
+        x
+      },
+      backend,
+      attrs: {
+        begin: $begin,
         size
-      },
-      backend
+      }
     });
-    backend.disposeData(xReshaped.dataId);
-    const reshaped = (0, _Reshape.reshape)({
+    result = (0, _Reshape.reshape)({
       inputs: {
-        x: xSliced
+        x: sliced
       },
+      backend,
       attrs: {
-        shape: outShape
-      },
-      backend
+        shape: finalShape
+      }
     });
-    backend.disposeData(xSliced.dataId);
-    return reshaped;
-  }
-
-  const out = backend.makeOutput(outShape, 'float32');
-
-  if (!outShape.some(axis => axis === 0)) {
-    const xId = backend.dataIdMap.get(xReshaped.dataId).id;
-    const xStridesBytes = new Uint8Array(new Int32Array(_tfjsCore.util.computeStrides(xReshaped.shape)).buffer);
-    const beginBytes = new Uint8Array(new Int32Array(begin).buffer);
-    const endBytes = new Uint8Array(new Int32Array(end).buffer);
-    const stridesBytes = new Uint8Array(new Int32Array(strides).buffer);
-    const outputShapeBytes = new Uint8Array(new Int32Array(outShape).buffer);
-    const outStridesBytes = new Uint8Array(new Int32Array(_tfjsCore.util.computeStrides(outShape)).buffer);
+    backend.disposeData(sliced.dataId);
+  } else {
+    const out = backend.makeOutput(finalShapeSparse, 'float32');
+    const xId = backend.dataIdMap.get(x.dataId).id;
+    const xStridesBytes = new Uint8Array(new Int32Array(_tfjsCore.util.computeStrides(x.shape)).buffer);
+    const beginBytes = new Uint8Array(new Int32Array($begin).buffer);
+    const endBytes = new Uint8Array(new Int32Array($end).buffer);
+    const stridesBytes = new Uint8Array(new Int32Array($strides).buffer);
+    const outputShapeBytes = new Uint8Array(new Int32Array(finalShapeSparse).buffer);
+    const outStridesBytes = new Uint8Array(new Int32Array(_tfjsCore.util.computeStrides(finalShapeSparse)).buffer);
     const outId = backend.dataIdMap.get(out.dataId).id;
-    wasmStridedSlice(xId, xStridesBytes, xReshaped.shape.length, beginBytes, endBytes, stridesBytes, outputShapeBytes, outStridesBytes, outShape.length, outId);
+    wasmStridedSlice(xId, xStridesBytes, x.shape.length, beginBytes, endBytes, stridesBytes, outputShapeBytes, outStridesBytes, finalShapeSparse.length, outId);
+    result = (0, _Reshape.reshape)({
+      inputs: {
+        x: out
+      },
+      backend,
+      attrs: {
+        shape: finalShape
+      }
+    });
+    backend.disposeData(out.dataId);
   }
 
-  backend.disposeData(xReshaped.dataId);
-  const reshaped = (0, _Reshape.reshape)({
-    inputs: {
-      x: out
-    },
-    attrs: {
-      shape: outShape
-    },
-    backend
-  });
-  backend.disposeData(out.dataId);
-  return reshaped;
+  return result;
 }
 
 const stridedSliceConfig = {
@@ -67109,7 +67314,7 @@ exports.version = void 0;
 
 /** @license See the LICENSE file. */
 // This code is auto-generated, do not modify this file!
-const version = '3.10.0';
+const version = '3.11.0';
 exports.version = version;
 },{}],"../node_modules/@tensorflow/tfjs-backend-wasm/dist/base.js":[function(require,module,exports) {
 "use strict";
@@ -74327,7 +74532,7 @@ exports.version = void 0;
 
 /** @license See the LICENSE file. */
 // This code is auto-generated, do not modify this file!
-const version = '3.10.0';
+const version = '3.11.0';
 exports.version = version;
 },{}],"../node_modules/@tensorflow/tfjs-backend-webgl/dist/webgl.js":[function(require,module,exports) {
 "use strict";
@@ -92719,29 +92924,39 @@ function stridedSlice(args) {
   } = attrs;
 
   const {
-    nonStrided,
-    $begin,
-    $strides,
-    size,
-    newShape,
-    outShape
+    finalShapeSparse,
+    finalShape,
+    isIdentity,
+    sliceDim0,
+    isSimpleSlice,
+    begin: $begin,
+    end: $end,
+    strides: $strides
   } = _tfjsCore.slice_util.sliceInfo(x.shape, begin, end, strides, beginMask, endMask, ellipsisMask, newAxisMask, shrinkAxisMask);
 
-  const $x = (0, _Reshape.reshape)({
-    inputs: {
-      x
-    },
-    backend,
-    attrs: {
-      shape: newShape
-    }
-  });
   let result;
 
-  if (nonStrided) {
+  if (isIdentity) {
+    // Optimization #1, slice is a no-op plus reshape
+    result = (0, _Reshape.reshape)({
+      inputs: {
+        x
+      },
+      backend,
+      attrs: {
+        shape: finalShape
+      }
+    });
+  } else if (sliceDim0 || isSimpleSlice) {
+    // Optimization #2, slice is memory contiguous (only occurs in dim 0)
+    _tfjsCore.util.assert(x.shape.length >= 1, () => `Input must have rank at least 1, got: ${x.shape.length}`);
+
+    const size = _tfjsCore.slice_util.computeOutShape($begin, $end, $strides); // To tolerate begin[0] > end[0] (a 0-output slice), we min(begin, end).
+
+
     const sliced = (0, _Slice.slice)({
       inputs: {
-        x: $x
+        x
       },
       backend,
       attrs: {
@@ -92755,24 +92970,23 @@ function stridedSlice(args) {
       },
       backend,
       attrs: {
-        shape: outShape
+        shape: finalShape
       }
     });
     backend.disposeIntermediateTensorInfo(sliced);
-  } else if (outShape.some(axis => axis === 0)) {
-    result = backend.makeTensorInfo(outShape, x.dtype, []);
   } else {
-    const shouldExecuteOnCPU = backend.shouldExecuteOnCPU([$x]);
+    const shouldExecuteOnCPU = backend.shouldExecuteOnCPU([x]);
 
     if (shouldExecuteOnCPU) {
-      const xTexData = backend.texData.get($x.dataId);
-      const values = xTexData.values;
-      const xBuf = (0, _tfjsCore.buffer)($x.shape, $x.dtype, values);
-      const resultValues = (0, _shared.stridedSliceImplCPU)(outShape, xBuf, $strides, $begin);
-      result = backend.makeTensorInfo(outShape, $x.dtype, resultValues.values);
+      // tslint:disable-next-line: no-unnecessary-type-assertion
+      const values = backend.readSync(x.dataId); // tslint:disable-next-line: no-unnecessary-type-assertion
+
+      const xBuf = (0, _tfjsCore.buffer)(x.shape, x.dtype, values);
+      const resultValues = (0, _shared.stridedSliceImplCPU)(finalShapeSparse, xBuf, $strides, $begin);
+      result = backend.makeTensorInfo(finalShape, x.dtype, resultValues.values);
     } else {
-      const program = new _strided_slice_gpu.StridedSliceProgram($begin, $strides, outShape);
-      result = backend.runWebGLProgram(program, [$x], $x.dtype);
+      const program = new _strided_slice_gpu.StridedSliceProgram($begin, $strides, finalShapeSparse);
+      result = backend.runWebGLProgram(program, [x], x.dtype);
     }
   }
 
@@ -92782,10 +92996,9 @@ function stridedSlice(args) {
     },
     backend,
     attrs: {
-      shape: outShape
+      shape: finalShape
     }
   });
-  backend.disposeIntermediateTensorInfo($x);
   backend.disposeIntermediateTensorInfo(result);
   return resultReshaped;
 }
@@ -94738,8 +94951,9 @@ var setupTf = /*#__PURE__*/function () {
 
           case 8:
             poseDetector = _context.sent;
+            console.log('poseDetector created');
 
-          case 9:
+          case 10:
           case "end":
             return _context.stop();
         }
@@ -95036,9 +95250,10 @@ var startGame = /*#__PURE__*/function () {
             videoOutput = document.getElementById('video-output');
             videoOutput.style.display = 'block'; // ai
 
+            console.log('starting pose prediction');
             predictPose(camera);
 
-          case 15:
+          case 16:
           case "end":
             return _context.stop();
         }
@@ -95191,7 +95406,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49870" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64022" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
