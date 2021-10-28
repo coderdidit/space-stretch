@@ -20,6 +20,7 @@ const setupTf = async () => {
     poseDetector = await poseDetection.createDetector(
         params.PoseDetectionCfg.model,
         params.PoseDetectionCfg.modelConfig);
+    console.log('poseDetector created')
 }
 
 setupTf()
