@@ -38,8 +38,8 @@ const allowedKeypoints = new Set([
   "nose",
   "left_eye",
   "right_eye",
-  "left_ear",
-  "right_ear",
+  // "left_ear",
+  // "right_ear",
 
   "left_shoulder",
   "right_shoulder",
@@ -114,13 +114,21 @@ export class Camera {
     for (const pose of poses) {
       this.drawResult(pose);
 
+      let leftColor = "white"
+      let rightColor = "white"
+      if (window.gameLeftMove()) {
+        leftColor = "red"
+      }
+      if (window.gameRightMove()) {
+        rightColor = "red"
+      }
       // horizontal line for reference
       const nose = pose.keypoints[0]
       if (nose.score > scoreThreshold) {
         // path from nose to right end
-        this.drawLine(nose, { x: 0, y: nose.y })
-        // path from nose to left end      
-        this.drawLine(nose, { x: this.video.videoWidth, y: nose.y })
+        this.drawLine(nose, { x: 0, y: nose.y }, rightColor)
+        // path from nose to left end   
+        this.drawLine(nose, { x: this.video.videoWidth, y: nose.y }, leftColor)
       }
     }
   }
@@ -132,7 +140,7 @@ export class Camera {
   drawResult(pose) {
     if (pose.keypoints != null) {
       this.drawKeypoints(pose.keypoints);
-      this.drawSkeleton(pose.keypoints, pose.id);
+      this.drawSkeleton(pose.keypoints);
     }
   }
 
@@ -183,36 +191,34 @@ export class Camera {
    * Draw the skeleton of a body on the video.
    * @param keypoints A list of keypoints.
    */
-  drawSkeleton(keypoints, poseId) {
-    // Each poseId is mapped to a color in the color palette.
-    const color = params.PoseDetectionCfg.modelConfig.enableTracking && poseId != null ?
-      COLOR_PALETTE[poseId % 20] :
-      'White';
-    this.ctx.fillStyle = color;
-    this.ctx.strokeStyle = color;
+  drawSkeleton(keypoints) {
+    let color = "blue"
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
-
     posedetection.util.getAdjacentPairs(params.PoseDetectionCfg.model).forEach(([
       i, j
     ]) => {
       const kp1 = keypoints[i];
       const kp2 = keypoints[j];
-
+      if (kp1.name.endsWith("shoulder") && kp2.name.endsWith("elbow")
+        && window.gameUpMove()) {
+        color = "red"
+      }
       if (allowedKeypoints.has(kp1.name) && allowedKeypoints.has(kp2.name)) {
-
         // If score is null, just show the keypoint.
         const score1 = kp1.score != null ? kp1.score : 1;
         const score2 = kp2.score != null ? kp2.score : 1;
         const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
         if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
-          this.drawLine(kp1, kp2)
+          this.drawLine(kp1, kp2, color)
         }
       }
     });
   }
 
-  drawLine(p1, p2) {
+  drawLine(p1, p2, color) {
+    this.ctx.fillStyle = color;
+    this.ctx.strokeStyle = color;
     this.ctx.beginPath();
     this.ctx.moveTo(p1.x, p1.y)
     this.ctx.lineTo(p2.x, p2.y);
