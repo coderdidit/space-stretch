@@ -124,16 +124,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = updatePlayerStats;
+exports.handleMoveToEvent = exports.stop = exports.up = exports.right = exports.left = void 0;
 var play = "play";
 var move = "move";
 var left = "left";
+exports.left = left;
 var right = "right";
+exports.right = right;
 var up = "up";
+exports.up = up;
 var jump = "jump";
 var down = "down";
 var stop = "stop";
+exports.stop = stop;
 var prevState = stop;
 var lastTimeChangeToStop = Date.now();
+
+var handleMoveToEvent = function handleMoveToEvent(move) {
+  if (move == left) {
+    window.gameStateMoveLeft();
+  } else if (move == right) {
+    window.gameStateMoveRight();
+  } else if (move == up) {
+    window.gameStateMoveUp();
+  } else {
+    window.gameStateStop();
+  }
+};
+
+exports.handleMoveToEvent = handleMoveToEvent;
 
 window.gameStateInit = function () {
   window.gameState = stop;
@@ -269,7 +288,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52169" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49870" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
