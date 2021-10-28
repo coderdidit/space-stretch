@@ -181,11 +181,11 @@ const handlePlayerMoves = (player, lastMovetime) => {
         player.body.setAllowGravity(true)
     }
     if (window.gameLeftMove() || cursors.left.isDown) {
-        player.body.setVelocityX((playerSpeed) * -1);
+        player.body.setVelocityX((playerSpeed * 0.8) * -1);
         player.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameRightMove() || cursors.right.isDown) {
-        player.body.setVelocityX(playerSpeed);
+        player.body.setVelocityX(playerSpeed * 0.8);
         player.body.setAllowGravity(false)
         lastMovetime = now
     } else if (window.gameUpMove() || cursors.up.isDown) {
