@@ -11,10 +11,10 @@ const gravity = 750
 const config = {
     type: Phaser.AUTO,
     parent: 'main-canvas',
-    width: 1024,
-    height: 768,
+    width: scaleDownSketch ? window.innerWidth / 1.2 : window.innerWidth,
+    height: scaleDownSketch ? window.innerHeight / 1.3 : window.innerHeight / 1.2,
     mode: Phaser.Scale.FIT,
-    // autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoCenter: Phaser.Scale.CENTER_VERTICALLY,
     scene: {
         preload,
         create,
@@ -144,7 +144,7 @@ function create() {
         'ship', // key of image for the sprite
     );
 
-    player.setScale(1.4)
+    player.setScale(1.8)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
