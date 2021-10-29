@@ -41,8 +41,8 @@ const handlePoseToGameEvents = (pose) => {
 
     const nose = poseKeypoints[0]
 
-    const leftEye = poseKeypoints[2]
-    const rightEye = poseKeypoints[5]
+    const leftEye = poseKeypoints[3]
+    const rightEye = poseKeypoints[6]
 
     const leftShoulder = poseKeypoints[12]
     const rightShoulder = poseKeypoints[11]

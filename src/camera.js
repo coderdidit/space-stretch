@@ -36,10 +36,12 @@ const scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
 
 const allowedKeypoints = new Set([
   "nose",
-  // "left_eye",
-  // "right_eye",
+  "left_eye",
+  "right_eye",
   "left_eye_inner",
   "right_eye_inner",
+  "left_eye_outer",
+  "right_eye_outer",
   // "left_ear",
   // "right_ear",
 
