@@ -25,9 +25,6 @@ const setupTf = async () => {
 
 setupTf()
 
-// var myWorker = new Worker('worker.js');
-// myWorker.postMessage(JSON.stringify(pose[0]));
-
 const predict = async (imgData) => {
     // pose detection
     let poses;
@@ -46,4 +43,8 @@ const predict = async (imgData) => {
     return poses
 }
 
-export { predict }
+onmessage = async (e) => {
+    const imgData = e.data.imgData
+    const poses = await predict(imgData)
+    postMessage({ poses: poses })
+}
