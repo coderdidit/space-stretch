@@ -5,7 +5,7 @@ import * as params from './pose-detection-cfg';
 import { getAngleBetween } from './angles';
 import { left, right, up, stop } from './game-state'
 
-let cameraRef
+
 const startGame = async () => {
     console.log('starting camera setup')
     const camera = await Camera.setupCamera();
@@ -30,7 +30,6 @@ const startGame = async () => {
 
     // ai
     console.log('starting pose prediction')
-    cameraRef = camera
     predictPose(camera)
 }
 
@@ -101,7 +100,7 @@ const handlePoseToGameEvents = (pose) => {
 }
 
 // fps for predictions
-let fps = 3;
+let fps = 5;
 let then = Date.now();
 let now, delta;
 let interval = 1000 / fps;
@@ -127,9 +126,9 @@ const predictPose = async (camera) => {
         predictionWorker.postMessage(
             { imgData: imgData }, [imgData.data.buffer])
 
-        cameraRef.drawCtx()
+        camera.drawCtx()
         if (poses && poses.length > 0) {
-            cameraRef.drawResults(poses);
+            camera.drawResults(poses);
             const pose = poses[0]
             const move = handlePoseToGameEvents(pose)
             handleMoveToEvent(move)
