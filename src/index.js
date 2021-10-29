@@ -1,6 +1,5 @@
 import 'regenerator-runtime/runtime'
 import { Camera } from './camera';
-import { predict } from './predictions'
 import { handleMoveToEvent } from './game-state'
 import * as params from './pose-detection-cfg';
 import { getAngleBetween } from './angles';
@@ -101,11 +100,16 @@ const handlePoseToGameEvents = (pose) => {
 }
 
 // fps for predictions
-let fps = 5;
+let fps = 4;
 let then = Date.now();
 let now, delta;
 let interval = 1000 / fps;
 let poses
+
+const predictionWorker = new Worker('predictions.js')
+predictionWorker.onmessage = e => {
+    poses = e.data.poses
+}
 
 const predictPose = async (camera) => {
     requestAnimationFrame(() => {
@@ -116,7 +120,12 @@ const predictPose = async (camera) => {
     delta = now - then;
     if (delta > interval) {
         then = now - (delta % interval);
-        poses = await predict(camera.video)
+        const imgData = camera.ctx.getImageData(0, 0,
+            camera.video.width, camera.video.height)
+
+        predictionWorker.postMessage(
+            { imgData: imgData }, [imgData.data.buffer])
+
         camera.drawCtx()
         if (poses && poses.length > 0) {
             camera.drawResults(poses);
