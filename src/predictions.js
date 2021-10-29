@@ -32,7 +32,12 @@ const predict = async (imgData) => {
     // pose detection
     let poses;
     try {
-        poses = await poseDetector.estimatePoses(imgData)
+        poses = await poseDetector.estimatePoses(
+            imgData,
+            {
+                maxPoses: 1,
+            }
+        )
     } catch (error) {
         poseDetector.dispose();
         poseDetector = null;

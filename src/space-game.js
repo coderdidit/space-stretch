@@ -164,13 +164,13 @@ function create() {
 }
 
 const playerSpeed = 100
-let lastMovetime = Date.now()
 function update(time, delta) {
     // manage events for neck stretches
-    handlePlayerMoves(player, lastMovetime)
+    handlePlayerMoves(player)
 }
 
-const handlePlayerMoves = (player, lastMovetime) => {
+let lastMovetime = Date.now()
+const handlePlayerMoves = (player) => {
     player.body.setVelocityX(0);
     player.body.setVelocityY(0);
 
@@ -178,7 +178,10 @@ const handlePlayerMoves = (player, lastMovetime) => {
     const timeDiff = (now - lastMovetime) / 1000
     // deffer gravity from in move state
     if (timeDiff > 0.8) {
-        player.body.setAllowGravity(true)
+        if (!window.gameInMove()) {
+            player.body.setAllowGravity(true)
+            player.body.setVelocityY(playerSpeed);
+        }
     }
     if (window.gameLeftMove() || cursors.left.isDown) {
         player.body.setVelocityX((playerSpeed * 0.8) * -1);
