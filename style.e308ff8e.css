@@ -9,7 +9,7 @@ body h4, h3, h5, p {
 
 #video-output {
   transform: scaleX(-1);
-  border: 3px solid rgb(114, 107, 107);
+  border: 5px solid #FB35F3;
 }
 
 #welcom-bg {
