@@ -3,8 +3,8 @@
 
 const BLAZEPOSE_CONFIG = {
    maxPoses: 1,
-   scoreThreshold: 0.65,
-   runtime: 'tfjs',
+   scoreThreshold: 0.3,
+   runtime: 'mediapipe',
    modelType: 'full',
    solutionPath: `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mpPose.VERSION}`,
    render3D: false
@@ -26,7 +26,7 @@ export const modelToCfg = new Map([
 ])
 
 // pose detection model config
-const modelSet = moveNetModel
+const modelSet = blazePoseModel
 export const PoseDetectionCfg = {
   backend: 'wasm',
   modelConfig: modelToCfg.get(modelSet),
