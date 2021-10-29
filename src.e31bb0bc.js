@@ -55253,8 +55253,8 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 var BLAZEPOSE_CONFIG = {
   maxPoses: 1,
   scoreThreshold: 0.65,
-  runtime: 'tfjs',
-  modelType: 'full',
+  runtime: 'mediapipe',
+  modelType: 'lite',
   solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/pose@".concat(mpPose.VERSION),
   render3D: false
 };
@@ -55270,7 +55270,7 @@ var blazePoseModel = posedetection.SupportedModels.BlazePose;
 var modelToCfg = new Map([[moveNetModel, MOVENET_CONFIG], [blazePoseModel, BLAZEPOSE_CONFIG]]); // pose detection model config
 
 exports.modelToCfg = modelToCfg;
-var modelSet = moveNetModel;
+var modelSet = blazePoseModel;
 var PoseDetectionCfg = {
   backend: 'wasm',
   modelConfig: modelToCfg.get(modelSet),
@@ -55342,7 +55342,9 @@ var DEFAULT_RADIUS = 6; // #ffffff - White
 
 var COLOR_PALETTE = ['#ffffff', '#800000', '#469990', '#e6194b', '#42d4f4', '#fabed4', '#aaffc3', '#9a6324', '#000075', '#f58231', '#4363d8', '#ffd8b1', '#dcbeff', '#808000', '#ffe119', '#911eb4', '#bfef45', '#f032e6', '#3cb44b', '#a9a9a9'];
 var scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
-var allowedKeypoints = new Set(["nose", "left_eye", "right_eye", // "left_ear",
+var allowedKeypoints = new Set(["nose", // "left_eye",
+// "right_eye",
+"left_eye_inner", "right_eye_inner", // "left_ear",
 // "right_ear",
 "left_shoulder", "right_shoulder", "left_elbow", "right_elbow" // "left_wrist",
 // "right_wrist",
@@ -95274,12 +95276,12 @@ var movedUp = false;
 var handlePoseToGameEvents = function handlePoseToGameEvents(pose) {
   var poseKeypoints = pose.keypoints;
   var nose = poseKeypoints[0];
-  var leftEye = poseKeypoints[1];
-  var rightEye = poseKeypoints[2];
-  var leftShoulder = poseKeypoints[5];
-  var rightShoulder = poseKeypoints[6];
-  var leftElbow = poseKeypoints[7];
-  var rightElbow = poseKeypoints[8];
+  var leftEye = poseKeypoints[2];
+  var rightEye = poseKeypoints[5];
+  var leftShoulder = poseKeypoints[12];
+  var rightShoulder = poseKeypoints[11];
+  var leftElbow = poseKeypoints[14];
+  var rightElbow = poseKeypoints[13];
   var leftElbowToSholder = (0, _angles.getAngleBetween)(leftShoulder, leftElbow);
   var rightElbowToSholder = (0, _angles.getAngleBetween)(rightShoulder, rightElbow); // arms and elbows
 
@@ -95408,7 +95410,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62572" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50309" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
