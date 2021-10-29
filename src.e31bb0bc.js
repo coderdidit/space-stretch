@@ -55342,9 +55342,7 @@ var DEFAULT_RADIUS = 6; // #ffffff - White
 
 var COLOR_PALETTE = ['#ffffff', '#800000', '#469990', '#e6194b', '#42d4f4', '#fabed4', '#aaffc3', '#9a6324', '#000075', '#f58231', '#4363d8', '#ffd8b1', '#dcbeff', '#808000', '#ffe119', '#911eb4', '#bfef45', '#f032e6', '#3cb44b', '#a9a9a9'];
 var scoreThreshold = params.PoseDetectionCfg.modelConfig.scoreThreshold || 0;
-var allowedKeypoints = new Set(["nose", // "left_eye",
-// "right_eye",
-"left_eye_inner", "right_eye_inner", // "left_ear",
+var allowedKeypoints = new Set(["nose", "left_eye", "right_eye", "left_eye_inner", "right_eye_inner", "left_eye_outer", "right_eye_outer", // "left_ear",
 // "right_ear",
 "left_shoulder", "right_shoulder", "left_elbow", "right_elbow" // "left_wrist",
 // "right_wrist",
@@ -95276,8 +95274,8 @@ var movedUp = false;
 var handlePoseToGameEvents = function handlePoseToGameEvents(pose) {
   var poseKeypoints = pose.keypoints;
   var nose = poseKeypoints[0];
-  var leftEye = poseKeypoints[2];
-  var rightEye = poseKeypoints[5];
+  var leftEye = poseKeypoints[3];
+  var rightEye = poseKeypoints[6];
   var leftShoulder = poseKeypoints[12];
   var rightShoulder = poseKeypoints[11];
   var leftElbow = poseKeypoints[14];
@@ -95410,7 +95408,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50309" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50618" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
