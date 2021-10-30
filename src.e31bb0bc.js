@@ -95215,37 +95215,48 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+var spinner = document.getElementById('spinner');
+var welcomBg = document.getElementById('welcom-bg');
+
+var stratSpinner = function stratSpinner() {
+  // hide main bg
+  welcomBg.style.display = 'none';
+  spinner.classList.remove("visually-hidden");
+};
+
+var stopSpinner = function stopSpinner() {
+  spinner.classList.add("visually-hidden");
+};
+
 var startGame = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-    var camera, welcomBg, mainCanvas, videoOutput;
+    var camera, mainCanvas, videoOutput;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            stratSpinner();
             console.log('starting camera setup');
-            _context.next = 3;
+            _context.next = 4;
             return _camera.Camera.setupCamera();
 
-          case 3:
+          case 4:
             camera = _context.sent;
 
             if (!(camera.video.readyState < 2)) {
-              _context.next = 7;
+              _context.next = 8;
               break;
             }
 
-            _context.next = 7;
+            _context.next = 8;
             return new Promise(function (resolve) {
               camera.video.onloadeddata = function () {
                 resolve(video);
               };
             });
 
-          case 7:
-            console.log('setupCamera finished', camera); // hide main bg
-
-            welcomBg = document.getElementById('welcom-bg');
-            welcomBg.style.display = 'none'; // un-hide game and camera canvas
+          case 8:
+            console.log('setupCamera finished', camera); // un-hide game and camera canvas
 
             mainCanvas = document.getElementById('main-canvas');
             mainCanvas.style.display = 'block';
@@ -95255,7 +95266,7 @@ var startGame = /*#__PURE__*/function () {
             console.log('starting pose prediction');
             predictPose(camera);
 
-          case 16:
+          case 15:
           case "end":
             return _context.stop();
         }
@@ -95329,6 +95340,7 @@ var then = Date.now();
 var now, delta;
 var interval = 1000 / fps;
 var poses;
+var spinnerStopped = false;
 
 var predictPose = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(camera) {
@@ -95344,7 +95356,7 @@ var predictPose = /*#__PURE__*/function () {
             delta = now - then;
 
             if (!(delta > interval)) {
-              _context2.next = 10;
+              _context2.next = 11;
               break;
             }
 
@@ -95354,6 +95366,12 @@ var predictPose = /*#__PURE__*/function () {
 
           case 7:
             poses = _context2.sent;
+
+            if (!spinnerStopped) {
+              stopSpinner();
+              spinnerStopped = true;
+            }
+
             camera.drawCtx();
 
             if (poses && poses.length > 0) {
@@ -95363,7 +95381,7 @@ var predictPose = /*#__PURE__*/function () {
               (0, _gameState.handleMoveToEvent)(move);
             }
 
-          case 10:
+          case 11:
           case "end":
             return _context2.stop();
         }
@@ -95408,7 +95426,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51154" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55138" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

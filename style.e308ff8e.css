@@ -121,5 +121,21 @@ body h4, h3, h5, p {
   width: 3vw;
 }
 
+#spinner {
+  position: absolute;
+  top: 15%;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 1
+}
+
+#spinner .spinner-border {
+  width: 6rem;
+  height: 6rem; 
+  border-width: 0.5rem;
+}
+
 
 /*# sourceMappingURL=https://coderdidit.com/space-stretch/style.e308ff8e.css.map */
