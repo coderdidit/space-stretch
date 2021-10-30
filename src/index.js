@@ -6,8 +6,22 @@ import * as params from './pose-detection-cfg';
 import { getAngleBetween } from './angles';
 import { left, right, up, stop } from './game-state'
 
+const spinner = document.getElementById('spinner')
+const welcomBg = document.getElementById('welcom-bg')
+
+const stratSpinner = () => {
+    // hide main bg
+    welcomBg.style.display = 'none'
+    spinner.classList.remove("visually-hidden")
+}
+
+const stopSpinner = () => {
+    spinner.classList.add("visually-hidden")
+}
 
 const startGame = async () => {
+    stratSpinner()
+
     console.log('starting camera setup')
     const camera = await Camera.setupCamera();
     if (camera.video.readyState < 2) {
@@ -18,10 +32,6 @@ const startGame = async () => {
         });
     }
     console.log('setupCamera finished', camera)
-
-    // hide main bg
-    const welcomBg = document.getElementById('welcom-bg')
-    welcomBg.style.display = 'none'
 
     // un-hide game and camera canvas
     const mainCanvas = document.getElementById('main-canvas')
@@ -107,6 +117,8 @@ let now, delta;
 let interval = 1000 / fps;
 let poses
 
+let spinnerStopped = false
+
 const predictPose = async (camera) => {
     requestAnimationFrame(() => {
         predictPose(camera)
@@ -117,6 +129,12 @@ const predictPose = async (camera) => {
     if (delta > interval) {
         then = now - (delta % interval);
         poses = await predict(camera.video)
+
+        if (!spinnerStopped) {
+            stopSpinner()
+            spinnerStopped = true
+        }
+        
         camera.drawCtx()
         if (poses && poses.length > 0) {
             camera.drawResults(poses);
