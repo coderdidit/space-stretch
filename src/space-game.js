@@ -5,8 +5,6 @@ import asteroidsPath from './vendor/assets/images/asteroids.png'
 import party from "party-js"
 
 
-const asteroidPlatformsCnt = 7
-const playerSpeed = 100
 const canvasParent = document.getElementById('main-canvas')
 
 class SpaceStretchGame extends Phaser.Scene {
@@ -135,6 +133,8 @@ class SpaceStretchGame extends Phaser.Scene {
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 750
+const asteroidPlatformsCnt = 7
+const playerSpeed = 100
 
 const config = {
     type: Phaser.AUTO,
