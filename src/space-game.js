@@ -2,11 +2,13 @@ import Phaser from "phaser";
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidsPath from './vendor/assets/images/asteroids.png'
+import party from "party-js"
 
 
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 750
+const canvasParent = document.getElementById('main-canvas')
 
 const config = {
     type: Phaser.AUTO,
@@ -47,6 +49,7 @@ const gameProps = {
 let player;
 let score = 0
 let scoreBoard, cursors;
+const asteroidPlatformsCnt = 7
 
 function preload() {
     this.load.image('asteroids', asteroidsPath);
@@ -76,7 +79,6 @@ function create() {
         "👨‍🚀 SCORE: 0",
         textStyle);
 
-    const asteroidPlatformsCnt = 7
     const asteroidGroupProps = {
         immovable: true,
         allowGravity: false,
@@ -128,7 +130,15 @@ function update(time, delta) {
 }
 
 let lastMovetime = Date.now()
+let won = false
 const handlePlayerMoves = (player) => {
+
+    // win
+    if (!won && score == asteroidPlatformsCnt) {
+        party.confetti(canvasParent)
+        won = true
+    }
+
     player.body.setVelocityX(0);
     player.body.setVelocityY(0);
 
