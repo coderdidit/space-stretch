@@ -29,7 +29,7 @@ export default class GameOver extends Phaser.Scene {
         this.bg = this.add.image(width / 2, height / 2, 'bg');
         this.bg.setOrigin(0.5)
 
-        const text = this.add.text(
+        const infoText = this.add.text(
             width / 2,
             (height / 2) - height * .2,
             "🚀🚀🚀\n" +
@@ -37,13 +37,25 @@ export default class GameOver extends Phaser.Scene {
             "All 🪨🪨🪨🪨 are crashed 💥",
             textStyle
         )
-        text.setOrigin(0.5)
-        text.setShadow(3, 3, 'rgba(0,0,0,0.2)', 2)
+        infoText.setOrigin(0.5)
+        infoText.setShadow(3, 3, 'rgba(0,0,0,0.2)', 2)
+
+        this.input.on("pointerdown", () => this.scene.start('space-stretch'))
+
+        textStyle.backgroundColor = '#262D83'
+        textStyle.fill = '#EEEEF0'
+        const restartText = this.add.text(
+            width / 2,
+            height * .8,
+            "🎮 restart",
+            textStyle
+        )
+        restartText.setOrigin(0.5)
+        restartText.setShadow(3, 3, 'rgba(0,0,0,0.2)', 2)
     }
 
-
     update() {
-        if (this.confettiFiredCount < 30) {
+        if (this.confettiFiredCount < 15) {
             party.confetti(canvasParent)
             this.confettiFiredCount += 1
         }

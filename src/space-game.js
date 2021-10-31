@@ -7,7 +7,7 @@ import GameOver from "./game-over";
 
 class SpaceStretchGame extends Phaser.Scene {
     constructor() {
-        super({ key: 'SpaceStretchGame' });
+        super({ key: 'space-stretch' });
     }
 
     init(data) { }
@@ -37,7 +37,7 @@ class SpaceStretchGame extends Phaser.Scene {
         this.add.text(
             5,
             5,
-            '🚀 Land on asteroids 🪨 to crush them 💥',
+            '🚀 Land on asteroids 🪨 and crush them 💥',
             textStyle);
 
         // Add the scoreboard in
