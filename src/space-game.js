@@ -28,7 +28,7 @@ class SpaceStretchGame extends Phaser.Scene {
 
         // background
         this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
-        this.bg.setDisplaySize(config.width, config.height);
+        // this.bg.setDisplaySize(config.width, config.height);
 
         // openingText
         const textStyle = { fontSize: '20px', fill: '#fff', fontFamily: 'Monaco, Courier, monospace' }
