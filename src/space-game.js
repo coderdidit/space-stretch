@@ -152,7 +152,7 @@ class SpaceStretchGame extends Phaser.Scene {
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 750
-const maxAsteroidPlatformsCnt = 1
+const maxAsteroidPlatformsCnt = 7
 const playerSpeed = 100
 
 const config = {
