@@ -73,7 +73,7 @@ class SpaceStretchGame extends Phaser.Scene {
             this.physics.world.bounds.height,
             'ship',
         );
-        player.setScale(1.6)
+        player.setScale(1.8)
         player.setCollideWorldBounds(true);
 
         const onCollide = (avatar, ballgr) => {
