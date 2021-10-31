@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
-import asteroidPath from './vendor/assets/images/asteroids.png'
+import asteroidsPath from './vendor/assets/images/asteroids.png'
 
 
 const isMobile = window.innerWidth < 450
@@ -44,13 +44,12 @@ const gameProps = {
     tile: 32
 }
 
-let player, ballsGroup;
-let ballGroups = new Map()
+let player;
 let score = 0
 let scoreBoard, cursors;
 
 function preload() {
-    this.load.image('asteroid', asteroidPath);
+    this.load.image('asteroids', asteroidsPath);
     this.load.image('ship', shipPath);
     this.load.image('bg', bgPath);
 }
@@ -77,127 +76,49 @@ function create() {
         "👨‍🚀 SCORE: 0",
         textStyle);
 
-    this.physics.world.setBoundsCollision(true, true, true, true)
+    const asteroidPlatformsCnt = 7
+    const asteroidGroupProps = {
+        immovable: true,
+        allowGravity: false,
+    }
+    const asteroids = this.physics.add.group(asteroidGroupProps)
 
-    const asteroidScale = 1.3
-
-    const placeAsteroids = (y) => {
-        const asteroidGroupProps = {
-            immovable: true,
-            allowGravity: false,
-        }
+    const placeAsteroids = () => {
+        const asteroidScale = 1.2
+        const yOffset = 80
         const xOffset = 150
-        const asteroids = this.physics.add.group(asteroidGroupProps)
-        asteroids.createMultiple({ key: 'asteroid', frameQuantity: 1 })
-        asteroids.getChildren().forEach(el => el.setScale(asteroidScale))
-        const line = new Phaser.Geom.Line(
-            xOffset,
-            y,
-            this.physics.world.bounds.width - xOffset,
-            y
-        )
-        Phaser.Actions.RandomLine(asteroids.getChildren(), line)
-        return asteroids
+        let asteroidYPos = yOffset
+        for (let i = 0; i < asteroidPlatformsCnt; i++) {
+            if (this.physics.world.bounds.height - asteroidYPos > yOffset) {
+                const x = Phaser.Math.Between(xOffset, this.physics.world.bounds.width - xOffset)
+                const asteroidTile = asteroids.create(x, asteroidYPos, 'asteroids')
+                asteroidTile.setScale(asteroidScale)
+                asteroidYPos += 120
+            }
+        }
     }
 
-    const yOffset = 80
-    const asteroidGroups = []
-    const platformsCnt = 6
-    let yStep = yOffset
-    for (let i = 0;i < platformsCnt;i++){
-        asteroidGroups.push(placeAsteroids(yStep))
-        yStep += 150
-    } 
-    // const ballsGroup2 = this.physics.add.group({ immovable: true, allowGravity: false })
-    // ballsGroup2.createMultiple({ key: 'asteroid', frameQuantity: 5 });
-    // Phaser.Actions.SetXY(ballsGroup2.getChildren(), 900, 100, 32);
-
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 150, 600, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // right
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 700, 550, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 50, 400, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 100, 150, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // right
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 800, 400, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
-
-    // // left
-    // for (let i = 0; i < asteroidsInGroupCount; i++) {
-    //     const tile = ballsGroup.create((i * 32) + 700, 100, 'asteroid')
-    //     tile.body.allowGravity = false
-    //     tile.setImmovable(true);
-    //     tile.setScale(asteroidScale)
-
-    //     ballGroups.set(tile, 0);
-    // }
+    placeAsteroids()
 
     player = this.physics.add.sprite(
-        Phaser.Math.Between(0, this.physics.world.bounds.width - 80), // x position
-        this.physics.world.bounds.height, // y position
-        'ship', // key of image for the sprite
+        Phaser.Math.Between(0, this.physics.world.bounds.width - 80),
+        this.physics.world.bounds.height,
+        'ship',
     );
-
     player.setScale(1.6)
     player.setCollideWorldBounds(true);
 
     const onCollide = (avatar, ballgr) => {
         if (avatar.body.onFloor()) {
-            const thisBgLanded = ballGroups.get(ballgr);
-            // if (thisBgLanded == 0) {
             score += 1
-            ballGroups.set(ballgr, 1)
             ballgr.setTint("0x33dd33")
             ballgr.setImmovable(false)
             ballgr.setVelocityY(600)
             scoreBoard.setText('Score: ' + score)
-            // }
         }
     }
 
-    asteroidGroups.forEach(a => {
-        this.physics.add.collider(player, a, onCollide, null, this);
-    })
-    
+    this.physics.add.collider(player, asteroids, onCollide, null, this);
 }
 
 const playerSpeed = 100
