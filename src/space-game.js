@@ -2,10 +2,8 @@ import Phaser from "phaser";
 import shipPath from './vendor/assets/images/ship.png'
 import bgPath from './vendor/assets/images/space.jpeg'
 import asteroidsPath from './vendor/assets/images/asteroids.png'
-import party from "party-js"
+import GameOver from "./game-over";
 
-
-const canvasParent = document.getElementById('main-canvas')
 
 class SpaceStretchGame extends Phaser.Scene {
     constructor() {
@@ -22,7 +20,6 @@ class SpaceStretchGame extends Phaser.Scene {
 
     create() {
         this.lastMovetime = Date.now()
-        this.won = false
         this.score = 0
         this.cursors = this.input.keyboard.createCursorKeys()
         this.landingAcceleration = 2
@@ -32,7 +29,11 @@ class SpaceStretchGame extends Phaser.Scene {
         // this.bg.setDisplaySize(config.width, config.height);
 
         // openingText
-        const textStyle = { fontSize: '20px', fill: '#fff', fontFamily: 'Monaco, Courier, monospace' }
+        const textStyle = {
+            fontSize: '20px',
+            fill: '#fff',
+            fontFamily: 'Orbitron'
+        }
         this.add.text(
             5,
             5,
@@ -109,9 +110,9 @@ class SpaceStretchGame extends Phaser.Scene {
     handlePlayerMoves() {
         // check if won
         const player = this.player
-        if (!this.won && this.score == this.placedAsteroidPlatforms) {
-            party.confetti(canvasParent)
-            this.won = true
+        if (this.score == this.placedAsteroidPlatforms) {
+            this.scene.start('you-won')
+            return
         }
         player.body.setVelocityX(0);
         player.body.setVelocityY(0);
@@ -151,7 +152,7 @@ class SpaceStretchGame extends Phaser.Scene {
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 750
-const maxAsteroidPlatformsCnt = 7
+const maxAsteroidPlatformsCnt = 1
 const playerSpeed = 100
 
 const config = {
@@ -161,7 +162,7 @@ const config = {
     height: scaleDownSketch ? window.innerHeight / 1.3 : window.innerHeight / 1.2,
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_VERTICALLY,
-    scene: [SpaceStretchGame],
+    scene: [SpaceStretchGame, GameOver],
     render: {
         pixelArt: true
     },
