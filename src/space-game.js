@@ -79,15 +79,7 @@ function create() {
 
     this.physics.world.setBoundsCollision(true, true, true, true)
 
-    // ballsGroup.enableBody = true;
-
-    const asteroidsInGroupCount = 7
     const asteroidScale = 1.3
-
-    // left
-
-    // ballsGroup.createMultiple({key: 'asteroid', frame: [0, 0, 0] });
-    // Phaser.Actions.SetXY(ballsGroup.getChildren(), 32, 100, 32);
 
     const placeAsteroids = (y) => {
         const asteroidGroupProps = {
@@ -108,30 +100,14 @@ function create() {
         return asteroids
     }
 
-    
-
-    const yOffset = 100
-
-    console.log('this.physics.world.bounds.height', this.physics.world.bounds.height)
-    let callCnt = 0
-
+    const yOffset = 80
     const asteroidGroups = []
-
-    for (let yStep = yOffset; yStep < this.physics.world.bounds.height - yOffset; yStep += (150)) {
-        console.log('yStep', yStep)
+    const platformsCnt = 6
+    let yStep = yOffset
+    for (let i = 0;i < platformsCnt;i++){
         asteroidGroups.push(placeAsteroids(yStep))
-        if (callCnt > 100) {
-            break;
-        }
-        callCnt++
-    }
-
-    // Phaser.Actions.RandomRectangle(ballsGroup1.getChildren(), this.physics.world.bounds)
-    // Phaser.Actions.SetScale(ballsGroup.getChildren(), 2)
-
-    // Phaser.Actions.PropertyValueSet
-
-
+        yStep += 150
+    } 
     // const ballsGroup2 = this.physics.add.group({ immovable: true, allowGravity: false })
     // ballsGroup2.createMultiple({ key: 'asteroid', frameQuantity: 5 });
     // Phaser.Actions.SetXY(ballsGroup2.getChildren(), 900, 100, 32);
