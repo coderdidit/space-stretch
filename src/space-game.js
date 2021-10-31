@@ -36,16 +36,6 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// this.sys.game.CONFIG 
-
-const gameProps = {
-    width: config.width,
-    height: config.height,
-    centerX: Math.round(0.5 * config.width),
-    centerY: Math.round(0.5 * config.height),
-    tile: 32
-}
-
 let player;
 let score = 0
 let scoreBoard, cursors;
