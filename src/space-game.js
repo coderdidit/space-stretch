@@ -24,7 +24,8 @@ class SpaceStretchGame extends Phaser.Scene {
         this.lastMovetime = Date.now()
         this.won = false
         this.score = 0
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.cursors = this.input.keyboard.createCursorKeys()
+        this.landingAcceleration = 2
 
         // background
         this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
@@ -97,7 +98,7 @@ class SpaceStretchGame extends Phaser.Scene {
     }
 
     handlePlayerMoves() {
-        // win
+        // check if won
         const player = this.player
         if (!this.won && this.score == this.placedAsteroidPlatforms) {
             party.confetti(canvasParent)
@@ -111,7 +112,14 @@ class SpaceStretchGame extends Phaser.Scene {
         if (timeDiff > 0.8) {
             if (!window.gameInMove()) {
                 player.body.setAllowGravity(true)
-                player.body.setVelocityY(playerSpeed);
+                player.body.setVelocityY(playerSpeed)
+            }
+        }
+        // if not in move for longer start accelerating gravity
+        if (timeDiff > 3) {
+            if (!window.gameInMove()) {
+                player.body.setVelocityY(playerSpeed + this.landingAcceleration)
+                this.landingAcceleration += 1.2
             }
         }
         if (window.gameLeftMove() || this.cursors.left.isDown) {
