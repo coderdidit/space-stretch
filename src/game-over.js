@@ -3,14 +3,6 @@ import bgPath from './vendor/assets/images/space.jpeg'
 import party from "party-js"
 
 
-const textStyle = {
-    font: 'bold 32px Orbitron',
-    fill: '#FA34F3',
-    backgroundColor: '#251F54',
-    padding: 30,
-    align: 'center',
-}
-
 const canvasParent = document.getElementById('main-canvas')
 
 export default class GameOver extends Phaser.Scene {
@@ -29,6 +21,13 @@ export default class GameOver extends Phaser.Scene {
         this.bg = this.add.image(width / 2, height / 2, 'bg');
         this.bg.setOrigin(0.5)
 
+        const textStyle = {
+            font: 'bold 32px Orbitron',
+            fill: '#FA34F3',
+            backgroundColor: '#251F54',
+            padding: 30,
+            align: 'center',
+        }
         const infoText = this.add.text(
             width / 2,
             (height / 2) - height * .2,
@@ -42,13 +41,18 @@ export default class GameOver extends Phaser.Scene {
 
         this.input.on("pointerdown", () => this.scene.start('space-stretch'))
 
-        textStyle.backgroundColor = '#262D83'
-        textStyle.fill = '#EEEEF0'
+        const restartTextStyle = {
+            font: 'bold 32px Orbitron',
+            fill: '#EEEEF0',
+            backgroundColor: '#262D83',
+            padding: 30,
+            align: 'center',
+        }
         const restartText = this.add.text(
             width / 2,
             height * .8,
             "🎮 restart",
-            textStyle
+            restartTextStyle
         )
         restartText.setOrigin(0.5)
         restartText.setShadow(3, 3, 'rgba(0,0,0,0.2)', 2)
