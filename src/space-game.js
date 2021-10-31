@@ -50,19 +50,20 @@ class SpaceStretchGame extends Phaser.Scene {
             allowGravity: false,
         }
         const asteroids = this.physics.add.group(asteroidGroupProps)
-
+        const worldWidth = this.physics.world.bounds.width
+        const worldHeight = this.physics.world.bounds.height
+        this.placedAsteroidPlatforms = 0
         const placeAsteroids = () => {
             const asteroidScale = 1.2
-            const yOffset = 80
-            const xOffset = 150
+            const yOffset = worldHeight * .129
+            const xOffset = worldWidth * .1
             let asteroidYPos = yOffset
-            for (let i = 0; i < asteroidPlatformsCnt; i++) {
-                if (this.physics.world.bounds.height - asteroidYPos > yOffset) {
-                    const x = Phaser.Math.Between(xOffset, this.physics.world.bounds.width - xOffset)
-                    const asteroidTile = asteroids.create(x, asteroidYPos, 'asteroids')
-                    asteroidTile.setScale(asteroidScale)
-                    asteroidYPos += 120
-                }
+            for (let i = 0; i < maxAsteroidPlatformsCnt; i++) {
+                const x = Phaser.Math.Between(xOffset, worldWidth - xOffset)
+                const asteroidTile = asteroids.create(x, asteroidYPos, 'asteroids')
+                asteroidTile.setScale(asteroidScale)
+                asteroidYPos += 120
+                this.placedAsteroidPlatforms += 1
             }
         }
 
@@ -98,7 +99,7 @@ class SpaceStretchGame extends Phaser.Scene {
     handlePlayerMoves() {
         // win
         const player = this.player
-        if (!this.won && this.score == asteroidPlatformsCnt) {
+        if (!this.won && this.score == this.placedAsteroidPlatforms) {
             party.confetti(canvasParent)
             this.won = true
         }
@@ -133,7 +134,7 @@ class SpaceStretchGame extends Phaser.Scene {
 const isMobile = window.innerWidth < 450
 const scaleDownSketch = !isMobile
 const gravity = 750
-const asteroidPlatformsCnt = 7
+const maxAsteroidPlatformsCnt = 7
 const playerSpeed = 100
 
 const config = {
