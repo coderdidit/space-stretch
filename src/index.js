@@ -111,7 +111,7 @@ const handlePoseToGameEvents = (pose) => {
 }
 
 // fps for predictions
-let fps = 5;
+let fps = 8;
 let then = Date.now();
 let now, delta;
 let interval = 1000 / fps;
@@ -134,7 +134,7 @@ const predictPose = async (camera) => {
             stopSpinner()
             spinnerStopped = true
         }
-        
+
         camera.drawCtx()
         if (poses && poses.length > 0) {
             camera.drawResults(poses);
