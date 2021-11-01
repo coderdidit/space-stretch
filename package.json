@@ -26,10 +26,15 @@
     "party-js": "^2.0.1",
     "phaser": "^3.55.2"
   },
+  "staticFiles": {
+    "staticPath": "./node_modules/@tensorflow/tfjs-backend-wasm/dist",
+    "excludeGlob": ["**/!(*.wasm)"]
+  },
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "babel-jest": "^27.0.5",
     "jest": "^27.0.5",
-    "ts-jest": "^27.0.3"
+    "ts-jest": "^27.0.3",
+    "parcel-plugin-static-files-copy": "^2.2.1"
   }
 }
