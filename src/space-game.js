@@ -60,7 +60,8 @@ class SpaceStretchGame extends Phaser.Scene {
             const yOffset = worldHeight * .129
             const xOffset = worldWidth * .1
             let asteroidYPos = yOffset
-            for (let i = 0; i < maxAsteroidPlatformsCnt; i++) {
+            for (let i = 0; i < maxAsteroidPlatformsCnt
+                && asteroidYPos < worldHeight; i++) {
 
                 // add biased randomnes to keep some tiles on left some on right
                 let x = 0
