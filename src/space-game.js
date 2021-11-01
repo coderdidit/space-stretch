@@ -23,6 +23,8 @@ class SpaceStretchGame extends Phaser.Scene {
         this.score = 0
         this.cursors = this.input.keyboard.createCursorKeys()
         this.landingAcceleration = 2
+        const asteroidScale = 1
+        const playerScale = 1.25
 
         // background
         this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
@@ -56,25 +58,24 @@ class SpaceStretchGame extends Phaser.Scene {
         const worldHeight = this.physics.world.bounds.height
         this.placedAsteroidPlatforms = 0
         const placeAsteroids = () => {
-            const asteroidScale = 1.2
-            const yOffset = worldHeight * .129
+            const yOffset = 32 * 1.5
             const xOffset = worldWidth * .1
-            let asteroidYPos = yOffset
+            const step = 100
+            let asteroidYPos = yOffset + 42
             for (let i = 0; i < maxAsteroidPlatformsCnt
-                && asteroidYPos < worldHeight; i++) {
-
+                && asteroidYPos < worldHeight - yOffset; i++) {
                 // add biased randomnes to keep some tiles on left some on right
                 let x = 0
                 if (i % 2 == 0) {
                     // bias towards left
-                    x = Phaser.Math.Between(xOffset, worldWidth / 2)
+                    x = Phaser.Math.Between(xOffset, worldWidth / 2.3)
                 } else {
                     // bias towards right
-                    x = Phaser.Math.Between(worldWidth / 2, worldWidth - xOffset)
+                    x = Phaser.Math.Between(worldWidth / 1.3, worldWidth - xOffset)
                 }
                 const asteroidTile = asteroids.create(x, asteroidYPos, 'asteroids')
                 asteroidTile.setScale(asteroidScale)
-                asteroidYPos += 120
+                asteroidYPos += step
                 this.placedAsteroidPlatforms += 1
             }
         }
@@ -86,7 +87,7 @@ class SpaceStretchGame extends Phaser.Scene {
             this.physics.world.bounds.height,
             'ship',
         );
-        player.setScale(1.8)
+        player.setScale(playerScale)
         player.setCollideWorldBounds(true);
 
         const onCollide = (avatar, ballgr) => {
