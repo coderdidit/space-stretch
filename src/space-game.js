@@ -164,6 +164,9 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_VERTICALLY,
     scene: [SpaceStretchGame, GameOver],
+    audio: {
+        noAudio: true
+    },
     render: {
         pixelArt: true
     },
