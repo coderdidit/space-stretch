@@ -8,9 +8,9 @@ import * as poseDetection from '@tensorflow-models/pose-detection';
 
 let poseDetector;
 const setupTf = async () => {
-    const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
-    console.log('registering wasm path', wasmPath)
-    tfjsWasm.setWasmPaths(wasmPath)
+    // const wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`
+    // console.log('registering wasm path', wasmPath)
+    // tfjsWasm.setWasmPaths(wasmPath)
 
     // setup AI
     await tf.setBackend(params.PoseDetectionCfg.backend)
