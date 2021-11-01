@@ -35,11 +35,14 @@ body h4, h3, h5, p {
 
 @media all and (min-width: 450px) {
   :root {
-    --webcam-width: 17vw;
+    --webcam-width: 16vw;
   }
 }
 
 @media all and (max-width: 450px) {
+  :root {
+    --webcam-width: 38vw;
+  }
   #welcom-bg {
     margin-top: 12vh;
   }
@@ -133,9 +136,8 @@ body h4, h3, h5, p {
 
 #spinner .spinner-border {
   width: 6rem;
-  height: 6rem; 
+  height: 6rem;
   border-width: 0.5rem;
 }
-
 
 /*# sourceMappingURL=https://coderdidit.com/space-stretch/style.e308ff8e.css.map */
