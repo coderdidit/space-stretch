@@ -10,10 +10,8 @@ Mainly Gamify neck and upper back stretches for Developers
 And people that spends lots of time in front of the computer
 
 # Technologies Used
-- Moralis
-- Aavegotchi
 - Tensorflow.js
-- p5.js
+- Phaser
 - Parcel Bundler
 - Vanilla ES6 JavaScript
 - Bootstrap
