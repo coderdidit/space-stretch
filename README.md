@@ -1,6 +1,6 @@
 # Space Strech Mini Game 
 
-![Screenshot 2021-10-31 at 23 19 06](https://user-images.githubusercontent.com/86926500/139604568-2dd59763-941a-41db-be76-463962fa6f1b.png)
+![space-stretch-large](https://user-images.githubusercontent.com/86926500/140053966-06c6d23c-55a7-4b1c-bb2a-e213f6c87863.gif)
 
 [Paly it here (game is deployed)](https://coderdidit.com/space-stretch)
 
