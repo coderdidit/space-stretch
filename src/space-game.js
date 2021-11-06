@@ -98,6 +98,7 @@ class SpaceStretchGame extends Phaser.Scene {
                 ballgr.setImmovable(false)
                 ballgr.setVelocityY(600)
                 this.scoreBoard.setText(`👨‍🚀 Score: ${this.score}`)
+                this.scoreBoard.setStyle(textStyle)
             }
         }
 
