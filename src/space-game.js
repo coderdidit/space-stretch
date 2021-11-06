@@ -91,12 +91,12 @@ class SpaceStretchGame extends Phaser.Scene {
         player.setScale(playerScale)
         player.setCollideWorldBounds(true);
 
-        const onCollide = (avatar, ballgr) => {
+        const onCollide = (avatar, asteroids) => {
             if (avatar.body.onFloor()) {
                 this.score += 1
-                ballgr.setTint("0x33dd33")
-                ballgr.setImmovable(false)
-                ballgr.setVelocityY(600)
+                asteroids.setTint("0x33dd33")
+                asteroids.setImmovable(false)
+                asteroids.setVelocityY(600)
                 this.scoreBoard.setText(`👨‍🚀 Score: ${this.score}`)
                 this.scoreBoard.setStyle(textStyle)
             }
