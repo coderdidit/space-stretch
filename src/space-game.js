@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import shipPath from './vendor/assets/images/ship.png'
-import bgPath from './vendor/assets/images/space.jpeg'
+import bgPath from './vendor/assets/images/space3.png'
 import asteroidsPath from './vendor/assets/images/asteroids.png'
 import GameOver from "./game-over";
 
@@ -28,7 +28,7 @@ class SpaceStretchGame extends Phaser.Scene {
 
         // background
         this.bg = this.add.image(config.width / 2, config.height / 2, 'bg');
-        // this.bg.setDisplaySize(config.width, config.height);
+        this.bg.setDisplaySize(config.width, config.height);
 
         // openingText
         const textStyle = {
@@ -97,7 +97,7 @@ class SpaceStretchGame extends Phaser.Scene {
                 asteroids.setTint("0x33dd33")
                 asteroids.setImmovable(false)
                 asteroids.setVelocityY(600)
-                this.scoreBoard.setText(`👨‍🚀 Score: ${this.score}`)
+                this.scoreBoard.setText(`👨‍🚀 SCORE: ${this.score}`)
                 this.scoreBoard.setStyle(textStyle)
             }
         }
