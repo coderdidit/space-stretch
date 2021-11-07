@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import bgPath from './vendor/assets/images/space.jpeg'
+import bgPath from './vendor/assets/images/space3.png'
 import party from "party-js"
 
 
@@ -20,6 +20,7 @@ export default class GameOver extends Phaser.Scene {
 
         this.bg = this.add.image(width / 2, height / 2, 'bg');
         this.bg.setOrigin(0.5)
+        this.bg.setDisplaySize(config.width, config.height);
 
         const textStyle = {
             font: 'bold 32px Orbitron',
