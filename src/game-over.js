@@ -20,7 +20,7 @@ export default class GameOver extends Phaser.Scene {
 
         this.bg = this.add.image(width / 2, height / 2, 'bg');
         this.bg.setOrigin(0.5)
-        this.bg.setDisplaySize(config.width, config.height);
+        this.bg.setDisplaySize(width, height);
 
         const textStyle = {
             font: 'bold 32px Orbitron',
